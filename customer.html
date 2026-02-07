@@ -178,7 +178,46 @@
 <a href="https://wa.me/8801713574848" class="whatsapp-float"><i class="fab fa-whatsapp"></i></a>
 
 <script>
-    let products = JSON.parse(localStorage.getItem('products')) || [];
+    let defaultProducts = [
+        {
+            id: 1,
+            name: 'AirPods Pro (2nd Generation)',
+            price: 25000,
+            old: 30000,
+            img: 'https://example.com/airpods-pro.jpg', // প্রকৃত ইমেজ URL দিন
+            category: 'airpods'
+        },
+        {
+            id: 2,
+            name: 'Anker PowerBank 20000mAh',
+            price: 3500,
+            old: null,
+            img: 'https://example.com/powerbank.jpg', // প্রকৃত ইমেজ URL দিন
+            category: 'powerbank'
+        },
+        {
+            id: 3,
+            name: 'Selfie Stick with Tripod',
+            price: 800,
+            old: 1200,
+            img: 'https://example.com/selfie-stick.jpg', // প্রকৃত ইমেজ URL দিন
+            category: 'selfie'
+        },
+        {
+            id: 4,
+            name: 'Himdi Fire TV Stick',
+            price: 4500,
+            old: null,
+            img: 'https://example.com/himdi-fire.jpg', // প্রকৃত ইমেজ URL দিন
+            category: 'selfie' // ক্যাটাগরি ঠিক করুন যদি ভুল হয়
+        },
+        // আরও প্রোডাক্ট অ্যাড করতে পারেন
+    ];
+
+    // localStorage খালি থাকলে ডিফল্ট প্রোডাক্ট লোড করুন
+    let products = JSON.parse(localStorage.getItem('products')) || defaultProducts;
+    localStorage.setItem('products', JSON.stringify(products)); // সেভ করুন যাতে পরে বাদ না পড়ে
+
     let orders = JSON.parse(localStorage.getItem('orders')) || [];
     let currentUserPhone = localStorage.getItem('customerPhone') || null;
 
@@ -383,3 +422,4 @@
 
 </body>
 </html>
+```order-item
