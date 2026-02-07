@@ -12,6 +12,7 @@
             --success: #43a047;
             --warning: #fb8c00;
             --light: #f8f9fa;
+            --approved: #1b5e20; /* নতুন: অ্যাপ্রুভডের জন্য */
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family: Arial, sans-serif; background: var(--light); padding: 15px; }
@@ -25,20 +26,22 @@
         h1, h2 { text-align: center; color: var(--primary); }
         form { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 20px 0; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-x: auto; display: block; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; min-width: 100px; }
         th { background: var(--primary); color: white; }
         .status-pending { color: var(--warning); font-weight: bold; }
         .status-processing { color: var(--primary); font-weight: bold; }
+        .status-approved { color: var(--approved); font-weight: bold; } /* নতুন */
         .status-delivered { color: var(--success); font-weight: bold; }
         .status-cancelled { color: var(--danger); font-weight: bold; }
         .actions button { margin: 2px; padding: 6px 12px; font-size: 0.9rem; }
+        .product-item { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
 <!-- লগইন মোডাল -->
-<div class="modal" id="adminLoginModal">
+<div class="modal" id="adminLoginModal" style="display: flex;">
     <div class="modal-content">
         <h2>অ্যাডমিন লগইন</h2>
         <input type="password" id="adminPass" placeholder="পাসওয়ার্ড দিন" style="margin:20px 0;">
@@ -81,8 +84,15 @@
                 <tr>
                     <th>অর্ডার আইডি</th>
                     <th>প্রোডাক্ট</th>
-                    <th>দাম</th>
+                    <th>পরিমাণ</th>
+                    <th>টোটাল দাম</th>
+                    <th>নাম</th>
                     <th>ফোন</th>
+                    <th>ঠিকানা</th>
+                    <th>পেমেন্ট টাইপ</th>
+                    <th>মেথড</th>
+                    <th>TrxID</th>
+                    <th>স্ক্রিনশট</th>
                     <th>সময়</th>
                     <th>স্ট্যাটাস</th>
                     <th>অ্যাকশন</th>
@@ -137,14 +147,22 @@
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${o.id}</td>
-                <td>${o.name}</td>
-                <td>৳${o.price}</td>
+                <td>${o.product}</td>
+                <td>${o.quantity}</td>
+                <td>৳${o.price * o.quantity}</td>
+                <td>${o.customerName}</td>
                 <td>${o.phone}</td>
+                <td>${o.address}</td>
+                <td>${o.paymentType === 'cod' ? 'COD' : 'Advance'}</td>
+                <td>${o.paymentMethod || 'N/A'}</td>
+                <td>${o.trxId || 'N/A'}</td>
+                <td>${o.screenshot || 'N/A'}</td>
                 <td>${o.time}</td>
                 <td class="status-${o.status || 'pending'}">${o.status || 'Pending'}</td>
                 <td class="actions">
                     <select onchange="updateOrderStatus(${o.id}, this.value)">
                         <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="approved" ${o.status === 'approved' ? 'selected' : ''}>Approved</option>
                         <option value="processing" ${o.status === 'processing' ? 'selected' : ''}>Processing</option>
                         <option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>Delivered</option>
                         <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
