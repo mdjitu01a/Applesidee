@@ -44,6 +44,9 @@
         .my-orders { margin-top: 30px; }
         .order-item { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .whatsapp-float { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: #25D366; color: white; border-radius: 50%; font-size: 2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 999; }
+        .payment-options { margin: 15px 0; }
+        .payment-method { margin: 15px 0; display: none; }
+        .payment-instructions { background: #f0f0f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -70,7 +73,7 @@
 
 <div class="hero">
     <h1>স্বাগতম অ্যাপল সাইডে!</h1>
-    <p>সেরা দামে অরিজিনাল প্রোডাক্ট • ফ্রি ডেলিভারি</p>
+    <p>সেরা দামে অরিজিনাল প্রোডাক্ট</p>
     <button class="btn btn-primary">হট ডিল দেখুন</button>
 </div>
 
@@ -80,6 +83,7 @@
         <div class="cat-item" data-category="airpods">AirPods</div>
         <div class="cat-item" data-category="powerbank">পাওয়ার ব্যাংক</div>
         <div class="cat-item" data-category="selfie">সেলফি স্টিক</div>
+        <div class="cat-item" data-category="selfie">হিমডি ফায়ার</div>
     </div>
 
     <h2 class="section-title">হট ডিলস ও বেস্ট সেলার</h2>
@@ -114,7 +118,7 @@
     <div class="modal-content">
         <span class="close-btn" onclick="document.getElementById('orderFormModal').style.display='none'">×</span>
         <h2 style="text-align:center;">অর্ডার দিন</h2>
-        <form id="orderDetailsForm">
+        <form id="orderDetailsForm" class="order-form">
             <label>পুরো নাম *</label>
             <input type="text" id="fullName" required>
 
@@ -132,6 +136,36 @@
 
             <label>কতটি নিবেন *</label>
             <input type="number" id="quantity" min="1" value="1" required>
+
+            <!-- নতুন অ্যাড: পেমেন্ট অপশন -->
+            <div class="payment-options">
+                <label>পেমেন্টের ধরন *</label>
+                <label><input type="radio" name="paymentType" value="cod" checked> ক্যাশ অন ডেলিভারি (COD)</label>
+                <label><input type="radio" name="paymentType" value="advance"> অ্যাডভান্স পেমেন্ট</label>
+            </div>
+
+            <!-- নতুন অ্যাড: অ্যাডভান্স পেমেন্টের জন্য অপশন -->
+            <div id="advancePaymentSection" class="payment-method" style="display:none;">
+                <label>পেমেন্ট মেথড *</label>
+                <select id="paymentMethod" required>
+                    <option value="">সিলেক্ট করুন</option>
+                    <option value="bkash">bKash</option>
+                    <option value="nagad">Nagad</option>
+                </select>
+
+                <div class="payment-instructions">
+                    <p>Send Money করুন নম্বরে: <strong>01713574848</strong></p>
+                    <p>পরিমাণ: অর্ডারের টোটাল টাকা (যেমন: ৳<span id="totalAmountDisplay"></span>)</p>
+                    <p>রেফারেন্সে অর্ডার নম্বর লিখুন (যেমন: Inv2263b)</p>
+                    <p>পেমেন্ট করার পর TrxID এবং স্ক্রিনশট দিন।</p>
+                </div>
+
+                <label>Transaction ID (TrxID) *</label>
+                <input type="text" id="trxId" placeholder="যেমন: ABCD123456">
+
+                <label>পেমেন্ট স্ক্রিনশট আপলোড করুন (ঐচ্ছিক)</label>
+                <input type="file" id="paymentScreenshot" accept="image/*">
+            </div>
 
             <input type="hidden" id="orderProductName">
             <input type="hidden" id="orderProductPrice">
@@ -179,6 +213,13 @@
     function openOrderForm(name, price) {
         document.getElementById('orderProductName').value = name;
         document.getElementById('orderProductPrice').value = price;
+        const quantityInput = document.getElementById('quantity');
+        const totalDisplay = document.getElementById('totalAmountDisplay');
+        function updateTotal() {
+            totalDisplay.textContent = price * quantityInput.value;
+        }
+        updateTotal();
+        quantityInput.addEventListener('input', updateTotal);
         document.getElementById('orderFormModal').style.display = 'flex';
     }
 
@@ -192,10 +233,26 @@
         const quantity = document.getElementById('quantity').value;
         const productName = document.getElementById('orderProductName').value;
         const productPrice = document.getElementById('orderProductPrice').value;
+        const paymentType = document.querySelector('input[name="paymentType"]:checked').value;
+        let paymentMethod = '';
+        let trxId = '';
+        let screenshot = '';
 
         if (!fullName || !phone || !address || !quantity) {
             alert('নাম, ফোন, ঠিকানা এবং পরিমাণ দিন!');
             return;
+        }
+
+        if (paymentType === 'advance') {
+            paymentMethod = document.getElementById('paymentMethod').value;
+            trxId = document.getElementById('trxId').value.trim();
+            const screenshotFile = document.getElementById('paymentScreenshot').files[0];
+            screenshot = screenshotFile ? screenshotFile.name : 'নেই';  // আসল আপলোড না করে শুধু নাম সেভ করছি (সার্ভার লাগবে আসলের জন্য)
+
+            if (!paymentMethod || !trxId) {
+                alert('পেমেন্ট মেথড, TrxID দিন!');
+                return;
+            }
         }
 
         const order = {
@@ -209,21 +266,33 @@
             email: email || 'নেই',
             size: size || 'N/A',
             time: new Date().toLocaleString('bn-BD'),
-            status: 'pending'
+            status: 'pending',
+            paymentType: paymentType,
+            paymentMethod: paymentMethod,
+            trxId: trxId,
+            screenshot: screenshot
         };
 
         orders.push(order);
         saveOrders();
 
-        const message = `নতুন অর্ডার!\nপ্রোডাক্ট: ${productName}\nদাম: ৳${productPrice}\nপরিমাণ: ${quantity}\nনাম: ${fullName}\nফোন: ${phone}\nঠিকানা: ${address}\nজিমেইল: ${email}\nসাইজ: ${size}`;
+        const message = `নতুন অর্ডার!\nপ্রোডাক্ট: ${productName}\nদাম: ৳${productPrice}\nপরিমাণ: ${quantity}\nটোটাল: ৳${productPrice * quantity}\nপেমেন্ট: ${paymentType === 'cod' ? 'COD' : 'Advance (' + paymentMethod + ')\nTrxID: ' + trxId + '\nস্ক্রিনশট: ' + screenshot}\nনাম: ${fullName}\nফোন: ${phone}\nঠিকানা: ${address}\nজিমেইল: ${email}\nসাইজ: ${size}`;
         const whatsappUrl = `https://wa.me/8801713574848?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
 
         alert('অর্ডার সফলভাবে পাঠানো হয়েছে!');
         document.getElementById('orderFormModal').style.display = 'none';
         e.target.reset();
+        document.getElementById('advancePaymentSection').style.display = 'none';
 
         if (currentUserPhone) renderMyOrders();
+    });
+
+    // নতুন অ্যাড: পেমেন্ট টাইপ চেঞ্জ হলে অ্যাডভান্স সেকশন শো/হাইড
+    document.querySelectorAll('input[name="paymentType"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.getElementById('advancePaymentSection').style.display = radio.value === 'advance' ? 'block' : 'none';
+        });
     });
 
     function renderMyOrders() {
@@ -241,6 +310,9 @@
                 <h3>${o.product} × ${o.quantity}</h3>
                 <p>দাম: ৳${o.price * o.quantity}</p>
                 <p>সময়: ${o.time}</p>
+                <p>পেমেন্ট: ${o.paymentType === 'cod' ? 'COD' : 'Advance (' + o.paymentMethod + ')'}</p>
+                <p>TrxID: ${o.trxId || 'N/A'}</p>
+                <p>স্ক্রিনশট: ${o.screenshot || 'N/A'}</p>
                 <p>স্ট্যাটাস: <strong>${o.status}</strong></p>
                 <p>ঠিকানা: ${o.address}</p>
             `;
