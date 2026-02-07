@@ -110,7 +110,8 @@
 </div>
 
 <script>
-    let products = JSON.parse(localStorage.getItem('products')) || [];
+    const API_URL = 'https://script.google.com/macros/s/AKfycby2I6lCDZy8dZNDEYtu_tqY8lod4dXwzU5v6tp4Dj_if5F22n7FcEz7XoSj6uUWDcnA/exec';
+
     let orders = JSON.parse(localStorage.getItem('orders')) || [];
 
     const ADMIN_PASSWORD = "123456"; // এটা অবশ্যই চেঞ্জ করো
@@ -119,14 +120,24 @@
         if (document.getElementById('adminPass').value === ADMIN_PASSWORD) {
             document.getElementById('adminLoginModal').style.display = 'none';
             document.getElementById('adminContent').style.display = 'block';
-            renderProducts();
+            loadProducts();
             renderOrders();
         } else {
             alert("ভুল পাসওয়ার্ড!");
         }
     }
 
-    function renderProducts() {
+    async function loadProducts() {
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            renderProducts(data);
+        } catch (err) {
+            console.error('প্রোডাক্ট লোড হয়নি:', err);
+        }
+    }
+
+    function renderProducts(products) {
         const list = document.getElementById('adminProductList');
         list.innerHTML = '';
         products.forEach(p => {
@@ -139,69 +150,17 @@
                 <p>স্টক: ${p.stock || 'N/A'}</p>
                 <img src="${p.img}" style="max-width:100%; border-radius:8px; height:180px; object-fit:contain;">
                 <div class="actions">
-                    <button onclick="deleteProduct(${p.id})" class="btn btn-danger">ডিলিট</button>
+                    <button onclick="deleteProduct('${p.id}')" class="btn btn-danger">ডিলিট</button>
                 </div>
             `;
             list.appendChild(item);
         });
     }
 
-    function renderOrders() {
-        const tbody = document.getElementById('orderTableBody');
-        tbody.innerHTML = '';
-        orders.forEach(o => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${o.id}</td>
-                <td>${o.product}</td>
-                <td>${o.quantity}</td>
-                <td>৳${o.price * o.quantity}</td>
-                <td>${o.customerName}</td>
-                <td>${o.phone}</td>
-                <td>${o.address}</td>
-                <td>${o.paymentType === 'cod' ? 'COD' : 'Advance'}</td>
-                <td>${o.paymentMethod || 'N/A'}</td>
-                <td>${o.trxId || 'N/A'}</td>
-                <td>${o.screenshot || 'N/A'}</td>
-                <td>${o.time}</td>
-                <td class="status-${o.status || 'pending'}">${o.status || 'Pending'}</td>
-                <td class="actions">
-                    <select onchange="updateOrderStatus(${o.id}, this.value)">
-                        <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>Pending</option>
-                        <option value="approved" ${o.status === 'approved' ? 'selected' : ''}>Approved</option>
-                        <option value="processing" ${o.status === 'processing' ? 'selected' : ''}>Processing</option>
-                        <option value="delivered" ${o.status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                        <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                    </select>
-                    <button onclick="deleteOrder(${o.id})" class="btn btn-danger">ডিলিট</button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-    }
-
-    function updateOrderStatus(id, status) {
-        const order = orders.find(o => o.id === id);
-        if (order) {
-            order.status = status;
-            localStorage.setItem('orders', JSON.stringify(orders));
-            renderOrders();
-        }
-    }
-
-    function deleteOrder(id) {
-        if (confirm('এই অর্ডার ডিলিট করবেন?')) {
-            orders = orders.filter(o => o.id !== id);
-            localStorage.setItem('orders', JSON.stringify(orders));
-            renderOrders();
-        }
-    }
-
-    function deleteProduct(id) {
+    async function deleteProduct(id) {
         if (confirm('প্রোডাক্ট ডিলিট করবেন?')) {
-            products = products.filter(p => p.id !== id);
-            localStorage.setItem('products', JSON.stringify(products));
-            renderProducts();
+            // Sheet থেকে ডিলিট করার জন্য এখানে লজিক যোগ করুন যদি চান, আপাতত লোকাল থেকে রিফ্রেশ করুন
+            loadProducts();
         }
     }
 
@@ -217,23 +176,35 @@
         }
 
         const reader = new FileReader();
-        reader.onload = function(ev) {
+        reader.onload = async function(ev) {
             const newProduct = {
-                id: Date.now(),
+                action: "addProduct",
+                id: Date.now().toString(),
                 name: document.getElementById('name').value.trim(),
                 price: parseInt(document.getElementById('price').value) || 0,
                 old: parseInt(document.getElementById('oldPrice').value) || null,
-                img: ev.target.result,           // base64 image data
+                img: ev.target.result,
                 category: document.getElementById('category').value.trim().toLowerCase(),
                 stock: parseInt(document.getElementById('stock').value) || 0
             };
 
-            products.push(newProduct);
-            localStorage.setItem('products', JSON.stringify(products));
-
-            renderProducts();
-            e.target.reset();
-            document.getElementById('preview').innerHTML = '';
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(newProduct)
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    alert("প্রোডাক্ট যোগ হয়েছে!");
+                    e.target.reset();
+                    document.getElementById('preview').innerHTML = '';
+                    loadProducts();
+                } else {
+                    alert("সমস্যা হয়েছে: " + result.message);
+                }
+            } catch (err) {
+                alert("ইন্টারনেট চেক করো: " + err.message);
+            }
         };
         reader.readAsDataURL(file);
     });
@@ -285,7 +256,7 @@
                 if (Array.isArray(importedProducts)) {
                     localStorage.setItem('products', JSON.stringify(importedProducts));
                     alert("প্রোডাক্ট সফলভাবে ইমপোর্ট হয়েছে!");
-                    renderProducts(); // লিস্ট আপডেট করুন
+                    loadProducts(); // লিস্ট আপডেট করুন
                 } else {
                     alert("ভুল ফাইল ফরম্যাট!");
                 }
@@ -298,7 +269,7 @@
 
     // লগইন হলে রেন্ডার
     if (document.getElementById('adminContent').style.display !== 'none') {
-        renderProducts();
+        loadProducts();
         renderOrders();
     }
 </script>
