@@ -252,4 +252,9 @@
 </script>
 
 </body>
-</html>
+</html><!-- অ্যাডমিন প্যানেলের ভিতরে যোগ করুন (adminContent div-এর উপরে বা নিচে) -->
+<div style="margin: 20px 0;">
+    <button onclick="exportProducts()" class="btn btn-success">প্রোডাক্ট এক্সপোর্ট করুন (JSON ফাইল)</button>
+    <input type="file" id="importFile" accept=".json" style="margin-left:15px;">
+    <button onclick="importProducts()" class="btn btn-primary">প্রোডাক্ট ইমপোর্ট করুন</button>
+</div>
