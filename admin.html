@@ -12,7 +12,7 @@
             --success: #43a047;
             --warning: #fb8c00;
             --light: #f8f9fa;
-            --approved: #1b5e20; /* নতুন: অ্যাপ্রুভডের জন্য */
+            --approved: #1b5e20;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family: Arial, sans-serif; background: var(--light); padding: 15px; }
@@ -31,7 +31,7 @@
         th { background: var(--primary); color: white; }
         .status-pending { color: var(--warning); font-weight: bold; }
         .status-processing { color: var(--primary); font-weight: bold; }
-        .status-approved { color: var(--approved); font-weight: bold; } /* নতুন */
+        .status-approved { color: var(--approved); font-weight: bold; }
         .status-delivered { color: var(--success); font-weight: bold; }
         .status-cancelled { color: var(--danger); font-weight: bold; }
         .actions button { margin: 2px; padding: 6px 12px; font-size: 0.9rem; }
@@ -61,11 +61,10 @@
             <input type="text" id="name" placeholder="প্রোডাক্টের নাম" required>
             <input type="number" id="price" placeholder="দাম (৳)" required>
             <input type="number" id="oldPrice" placeholder="আগের দাম (৳)">
-            <input type="text" id="img" placeholder="ইমেজ URL" required>
+            <input type="file" id="imageFile" accept="image/*" required>
+            <div id="preview" style="margin:10px 0;"></div>
             <input type="text" id="category" placeholder="ক্যাটাগরি (airpods/powerbank/selfie)" required>
             <input type="number" id="stock" placeholder="স্টক (পরিমাণ)" value="10" min="0">
-            <input type="file" id="imageFile" accept="image/*">
-            <div id="preview"></div>
             <button type="submit" class="btn btn-primary" style="width:100%; margin-top:15px;">প্রোডাক্ট যোগ করুন</button>
         </form>
     </div>
@@ -107,7 +106,7 @@
     let products = JSON.parse(localStorage.getItem('products')) || [];
     let orders = JSON.parse(localStorage.getItem('orders')) || [];
 
-    const ADMIN_PASSWORD = "123456"; // চেঞ্জ করো
+    const ADMIN_PASSWORD = "123456"; // এটা অবশ্যই চেঞ্জ করো
 
     function checkAdmin() {
         if (document.getElementById('adminPass').value === ADMIN_PASSWORD) {
@@ -131,7 +130,7 @@
                 <p>দাম: ৳${p.price} ${p.old ? `(আগের: ৳${p.old})` : ''}</p>
                 <p>ক্যাটাগরি: ${p.category}</p>
                 <p>স্টক: ${p.stock || 'N/A'}</p>
-                <img src="${p.img}" style="max-width:100%; border-radius:8px;">
+                <img src="${p.img}" style="max-width:100%; border-radius:8px; height:180px; object-fit:contain;">
                 <div class="actions">
                     <button onclick="deleteProduct(${p.id})" class="btn btn-danger">ডিলিট</button>
                 </div>
@@ -178,7 +177,7 @@
         const order = orders.find(o => o.id === id);
         if (order) {
             order.status = status;
-            saveOrders();
+            localStorage.setItem('orders', JSON.stringify(orders));
             renderOrders();
         }
     }
@@ -186,7 +185,7 @@
     function deleteOrder(id) {
         if (confirm('এই অর্ডার ডিলিট করবেন?')) {
             orders = orders.filter(o => o.id !== id);
-            saveOrders();
+            localStorage.setItem('orders', JSON.stringify(orders));
             renderOrders();
         }
     }
@@ -199,26 +198,37 @@
         }
     }
 
-    function saveOrders() {
-        localStorage.setItem('orders', JSON.stringify(orders));
-    }
-
     document.getElementById('productForm').addEventListener('submit', e => {
         e.preventDefault();
-        const newProduct = {
-            id: Date.now(),
-            name: document.getElementById('name').value.trim(),
-            price: parseInt(document.getElementById('price').value),
-            old: parseInt(document.getElementById('oldPrice').value) || null,
-            img: document.getElementById('img').value.trim(),
-            category: document.getElementById('category').value.trim().toLowerCase(),
-            stock: parseInt(document.getElementById('stock').value) || 10
+
+        const fileInput = document.getElementById('imageFile');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("অনুগ্রহ করে একটি ছবি সিলেক্ট করুন");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            const newProduct = {
+                id: Date.now(),
+                name: document.getElementById('name').value.trim(),
+                price: parseInt(document.getElementById('price').value) || 0,
+                old: parseInt(document.getElementById('oldPrice').value) || null,
+                img: ev.target.result,           // base64 image data
+                category: document.getElementById('category').value.trim().toLowerCase(),
+                stock: parseInt(document.getElementById('stock').value) || 0
+            };
+
+            products.push(newProduct);
+            localStorage.setItem('products', JSON.stringify(products));
+
+            renderProducts();
+            e.target.reset();
+            document.getElementById('preview').innerHTML = '';
         };
-        products.push(newProduct);
-        localStorage.setItem('products', JSON.stringify(products));
-        renderProducts();
-        e.target.reset();
-        document.getElementById('preview').innerHTML = '';
+        reader.readAsDataURL(file);
     });
 
     document.getElementById('imageFile').addEventListener('change', e => {
@@ -226,7 +236,9 @@
         if (file) {
             const reader = new FileReader();
             reader.onload = ev => {
-                document.getElementById('preview').innerHTML = `<img src="${ev.target.result}" style="max-width:200px;">`;
+                document.getElementById('preview').innerHTML = `
+                    <img src="${ev.target.result}" style="max-width:220px; max-height:220px; object-fit:contain; margin-top:10px; border-radius:8px;">
+                `;
             };
             reader.readAsDataURL(file);
         }
