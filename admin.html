@@ -110,7 +110,7 @@
 </div>
 
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycby2I6lCDZy8dZNDEYtu_tqY8lod4dXwzU5v6tp4Dj_if5F22n7FcEz7XoSj6uUWDcnA/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyPITjbvBHFj3bl5heQS0VnQToduBOIrNwnSUoOBZ7eDCMMDgTvTNwce9Z278sZ-PtJ/exec';
 
     let products = [];
     let orders = [];
@@ -156,6 +156,13 @@
             `;
             list.appendChild(item);
         });
+    }
+
+    async function deleteProduct(id) {
+        if (confirm('প্রোডাক্ট ডিলিট করবেন?')) {
+            // Google Sheets থেকে ডিলিট করার জন্য অতিরিক্ত লজিক যোগ করুন যদি চান, আপাতত রিফ্রেশ করুন
+            loadProducts();
+        }
     }
 
     async function loadOrders() {
@@ -225,7 +232,7 @@
 
     async function deleteOrder(id) {
         if (confirm('এই অর্ডার ডিলিট করবেন?')) {
-            // Google Sheets থেকে ডিলিট করার জন্য অতিরিক্ত লজিক যোগ করুন যদি চান, আপাতত রিফ্রেশ করুন
+            // Google Sheets থেকে ডিলিট করার জন্য অতিরিক্ত লজিক যোগ করুন যদি চান, আপাতত রিেশ করুন
             loadOrders();
         }
     }
