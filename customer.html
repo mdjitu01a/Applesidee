@@ -178,7 +178,7 @@
 <a href="https://wa.me/8801713574848" class="whatsapp-float"><i class="fab fa-whatsapp"></i></a>
 
 <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycby2I6lCDZy8dZNDEYtu_tqY8lod4dXwzU5v6tp4Dj_if5F22n7FcEz7XoSj6uUWDcnA/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyPITjbvBHFj3bl5heQS0VnQToduBOIrNwnSUoOBZ7eDCMMDgTvTNwce9Z278sZ-PtJ/exec';
 
     let products = [];
     let orders = JSON.parse(localStorage.getItem('orders')) || [];
@@ -260,7 +260,7 @@
             paymentMethod = document.getElementById('paymentMethod').value;
             trxId = document.getElementById('trxId').value.trim();
             const screenshotFile = document.getElementById('paymentScreenshot').files[0];
-            screenshot = screenshotFile ? screenshotFile.name : 'নেই';  // আসল আপলোড না করে শুধু নাম সেভ করছি (সার্ভার লাগবে আসলের জন্য)
+            screenshot = screenshotFile ? screenshotFile.name : 'নেই';
 
             if (!paymentMethod || !trxId) {
                 alert('পেমেন্ট মেথড, TrxID দিন!');
@@ -269,6 +269,7 @@
         }
 
         const order = {
+            action: "addOrder",
             id: Date.now().toString(),
             customerName: fullName,
             phone: phone,
@@ -290,10 +291,7 @@
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
-                body: JSON.stringify({
-                    action: "addOrder",
-                    ...order
-                })
+                body: JSON.stringify(order)
             });
             const result = await response.json();
             if (result.status === 'success') {
