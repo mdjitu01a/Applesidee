@@ -88,7 +88,6 @@
     <h2 class="section-title">হট ডিলস ও বেস্ট সেলার</h2>
     <div class="product-grid" id="productGrid"></div>
 
-    <!-- আমার অর্ডার সেকশন -->
     <div id="myOrdersSection" class="my-orders" style="display:none;">
         <h2>আমার অর্ডার</h2>
         <div id="myOrdersList"></div>
@@ -188,6 +187,7 @@
     async function loadProducts() {
         try {
             const response = await fetch(API_URL);
+            if (!response.ok) throw new Error('Network response was not ok');
             products = await response.json();
             renderProducts(products);
         } catch (err) {
@@ -294,6 +294,10 @@
                 })
             });
 
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.status);
+            }
+
             const result = await response.json();
 
             if (result.status === 'success') {
@@ -314,7 +318,8 @@
                 alert('অর্ডার পাঠাতে সমস্যা: ' + (result.message || 'অজানা ত্রুটি'));
             }
         } catch (err) {
-            alert('ইন্টারনেট বা সার্ভার সমস্যা: ' + err.message);
+            alert('অর্ডার পাঠাতে সমস্যা হয়েছে:\n' + err.message + '\n\nইন্টারনেট চেক করো বা পরে আবার চেষ্টা করো।');
+            console.error(err);
         }
     });
 
@@ -361,7 +366,7 @@
         document.getElementById('myOrdersBtn').style.display = 'block';
     }
 
-    // সার্চ এবং ক্যাটাগরি ফিল্টার
+    // সার্চ এবং ক্যাটাগরি ফিল্টার (এখন পুরোপুরি ঠিক করা)
     document.getElementById('searchInput').addEventListener('input', e => {
         const term = e.target.value.toLowerCase().trim();
         const filtered = products.filter(p => p.name.toLowerCase().includes(term));
