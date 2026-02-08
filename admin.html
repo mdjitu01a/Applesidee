@@ -1,14 +1,127 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অ্যাপল সাইড - অ্যাডমিন প্যানেল</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e88e5;
+            --danger: #e53935;
+            --success: #43a047;
+            --warning: #fb8c00;
+            --light: #f8f9fa;
+            --approved: #1b5e20;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: Arial, sans-serif; background: var(--light); padding: 15px; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; }
+        .btn { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: bold; margin: 5px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        h1, h2 { text-align: center; color: var(--primary); }
+        form { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 20px 0; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-x: auto; display: block; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; min-width: 100px; }
+        th { background: var(--primary); color: white; }
+        .status-pending { color: var(--warning); font-weight: bold; }
+        .status-processing { color: var(--primary); font-weight: bold; }
+        .status-approved { color: var(--approved); font-weight: bold; }
+        .status-delivered { color: var(--success); font-weight: bold; }
+        .status-cancelled { color: var(--danger); font-weight: bold; }
+        .actions button { margin: 2px; padding: 6px 12px; font-size: 0.9rem; }
+        .product-item { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+<!-- লগইন মোডাল -->
+<div class="modal" id="adminLoginModal" style="display: flex;">
+    <div class="modal-content">
+        <h2>অ্যাডমিন লগইন</h2>
+        <input type="password" id="adminPass" placeholder="পাসওয়ার্ড দিন" style="margin:20px 0;">
+        <button onclick="checkAdmin()" class="btn btn-primary" style="width:100%;">লগইন</button>
+    </div>
+</div>
+
+<!-- অ্যাডমিন প্যানেল -->
+<div id="adminContent" style="display:none;">
+    <h1>অ্যাপল সাইড - অ্যাডমিন প্যানেল</h1>
+    <button onclick="location.reload()" class="btn btn-danger" style="float:right;">লগআউট</button>
+
+    <!-- প্রোডাক্ট যোগ -->
+    <div class="section">
+        <h2>নতুন প্রোডাক্ট যোগ করুন</h2>
+        <form id="productForm">
+            <input type="text" id="name" placeholder="প্রোডাক্টের নাম" required>
+            <input type="number" id="price" placeholder="দাম (৳)" required>
+            <input type="number" id="oldPrice" placeholder="আগের দাম (৳)">
+            <input type="file" id="imageFile" accept="image/*" required>
+            <div id="preview" style="margin:10px 0;"></div>
+            <input type="text" id="category" placeholder="ক্যাটাগরি (airpods/powerbank/selfie)" required>
+            <input type="number" id="stock" placeholder="স্টক (পরিমাণ)" value="10" min="0">
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:15px;">প্রোডাক্ট যোগ করুন</button>
+        </form>
+    </div>
+
+    <!-- প্রোডাক্ট লিস্ট -->
+    <div class="section">
+        <h2>সকল প্রোডাক্ট</h2>
+        <div id="adminProductList"></div>
+    </div>
+
+    <!-- অর্ডার লিস্ট -->
+    <div class="section">
+        <h2>সকল অর্ডার</h2>
+        <table id="orderTable">
+            <thead>
+                <tr>
+                    <th>অর্ডার আইডি</th>
+                    <th>প্রোডাক্ট</th>
+                    <th>পরিমাণ</th>
+                    <th>টোটাল দাম</th>
+                    <th>নাম</th>
+                    <th>ফোন</th>
+                    <th>ঠিকানা</th>
+                    <th>পেমেন্ট টাইপ</th>
+                    <th>মেথড</th>
+                    <th>TrxID</th>
+                    <th>স্ক্রিনশট</th>
+                    <th>সময়</th>
+                    <th>স্ট্যাটাস</th>
+                    <th>অ্যাকশন</th>
+                </tr>
+            </thead>
+            <tbody id="orderTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- নতুন যোগ: এক্সপোর্ট/ইমপোর্ট সেকশন -->
+    <div style="margin: 20px 0;">
+        <button onclick="exportProducts()" class="btn btn-success">প্রোডাক্ট এক্সপোর্ট করুন (JSON ফাইল)</button>
+        <input type="file" id="importFile" accept=".json" style="margin-left:15px;">
+        <button onclick="importProducts()" class="btn btn-primary">প্রোডাক্ট ইমপোর্ট করুন</button>
+    </div>
+</div>
+
 <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycby2I6lCDZy8dZNDEYtu_tqY8lod4dXwzU5v6tp4Dj_if5F22n7FcEz7XoSj6uUWDcnA/exec';
 
-    const ADMIN_PASSWORD = "123456"; // চেঞ্জ করুন নিরাপত্তার জন্য
+    let orders = JSON.parse(localStorage.getItem('orders')) || [];
+
+    const ADMIN_PASSWORD = "123456"; // এটা অবশ্যই চেঞ্জ করো
 
     function checkAdmin() {
         if (document.getElementById('adminPass').value === ADMIN_PASSWORD) {
             document.getElementById('adminLoginModal').style.display = 'none';
             document.getElementById('adminContent').style.display = 'block';
             loadProducts();
-            loadOrders(); // নতুন: অর্ডার লোড করুন
+            renderOrders();
         } else {
             alert("ভুল পাসওয়ার্ড!");
         }
@@ -16,7 +129,7 @@
 
     async function loadProducts() {
         try {
-            const response = await fetch(API_URL + '?action=getProducts'); // অ্যাকশন যোগ করুন যদি দরকার
+            const response = await fetch(API_URL);
             const data = await response.json();
             renderProducts(data);
         } catch (err) {
@@ -46,30 +159,22 @@
 
     async function deleteProduct(id) {
         if (confirm('প্রোডাক্ট ডিলিট করবেন?')) {
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'deleteProduct', id })
-                });
-                const result = await response.json();
-                if (result.status === 'success') {
-                    alert('ডিলিট হয়েছে!');
-                    loadProducts();
-                }
-            } catch (err) {
-                alert('সমস্যা: ' + err.message);
-            }
+            // Sheet থেকে ডিলিট করার জন্য এখানে লজিক যোগ করুন যদি চান, আপাতত লোকাল থেকে রিফ্রেশ করুন
+            loadProducts();
         }
     }
 
     document.getElementById('productForm').addEventListener('submit', e => {
         e.preventDefault();
+
         const fileInput = document.getElementById('imageFile');
         const file = fileInput.files[0];
+
         if (!file) {
             alert("অনুগ্রহ করে একটি ছবি সিলেক্ট করুন");
             return;
         }
+
         const reader = new FileReader();
         reader.onload = async function(ev) {
             const newProduct = {
@@ -82,6 +187,7 @@
                 category: document.getElementById('category').value.trim().toLowerCase(),
                 stock: parseInt(document.getElementById('stock').value) || 0
             };
+
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
@@ -116,82 +222,57 @@
         }
     });
 
-    // নতুন: অর্ডার লোড করুন API থেকে
-    async function loadOrders() {
-        try {
-            const response = await fetch(API_URL + '?action=getOrders'); // আপনার Apps Script এ getOrders হ্যান্ডেল করুন
-            const data = await response.json();
-            renderOrders(data);
-        } catch (err) {
-            console.error('অর্ডার লোড হয়নি:', err);
-            document.getElementById('orderTableBody').innerHTML = '<tr><td colspan="14">অর্ডার লোড হয়নি।</td></tr>';
-        }
-    }
-
-    // নতুন: অর্ডার রেন্ডার করুন
-    function renderOrders(orders) {
-        const tableBody = document.getElementById('orderTableBody');
-        tableBody.innerHTML = '';
-        if (orders.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="14">কোনো অর্ডার নেই।</td></tr>';
+    // নতুন যোগ: এক্সপোর্ট ফাংশন
+    function exportProducts() {
+        const data = localStorage.getItem('products');
+        if (!data || data === '[]') {
+            alert("কোনো প্রোডাক্ট নেই এক্সপোর্ট করার জন্য");
             return;
         }
-        orders.forEach(order => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${order.id}</td>
-                <td>${order.productName}</td>
-                <td>${order.quantity}</td>
-                <td>৳${order.totalPrice}</td>
-                <td>${order.customerName}</td>
-                <td>${order.phone}</td>
-                <td>${order.address}</td>
-                <td>${order.paymentType}</td>
-                <td>${order.paymentMethod || 'N/A'}</td>
-                <td>${order.trxId || 'N/A'}</td>
-                <td>${order.screenshot ? '<img src="' + order.screenshot + '" width="50">' : 'N/A'}</td>
-                <td>${new Date(order.timestamp).toLocaleString('bn-BD')}</td>
-                <td class="status-${order.status.toLowerCase()}">${order.status}</td>
-                <td>
-                    <button onclick="updateOrderStatus('${order.id}', 'processing')" class="btn btn-primary">প্রসেসিং</button>
-                    <button onclick="updateOrderStatus('${order.id}', 'approved')" class="btn btn-success">অ্যাপ্রুভ</button>
-                    <button onclick="updateOrderStatus('${order.id}', 'delivered')" class="btn btn-success">ডেলিভার্ড</button>
-                    <button onclick="updateOrderStatus('${order.id}', 'cancelled')" class="btn btn-danger">ক্যানসেল</button>
-                </td>
-            `;
-            tableBody.appendChild(row);
-        });
+        
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'products_backup.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        alert("প্রোডাক্টস ফাইল ডাউনলোড হয়েছে!");
     }
 
-    // নতুন: অর্ডার স্ট্যাটাস আপডেট
-    async function updateOrderStatus(id, newStatus) {
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'updateOrder', id, status: newStatus })
-            });
-            const result = await response.json();
-            if (result.status === 'success') {
-                alert('স্ট্যাটাস আপডেট হয়েছে!');
-                loadOrders();
-            }
-        } catch (err) {
-            alert('সমস্যা: ' + err.message);
-        }
-    }
-
-    // এক্সপোর্ট/ইমপোর্ট (পুরোনো)
-    function exportProducts() {
-        // ... (আপনার পুরোনো কোড)
-    }
-
+    // নতুন যোগ: ইমপোর্ট ফাংশন
     function importProducts() {
-        // ... (আপনার পুরোনো কোড)
+        const file = document.getElementById('importFile').files[0];
+        
+        if (!file) {
+            alert("অনুগ্রহ করে একটা JSON ফাইল সিলেক্ট করুন");
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedProducts = JSON.parse(e.target.result);
+                if (Array.isArray(importedProducts)) {
+                    localStorage.setItem('products', JSON.stringify(importedProducts));
+                    alert("প্রোডাক্ট সফলভাবে ইমপোর্ট হয়েছে!");
+                    loadProducts(); // লিস্ট আপডেট করুন
+                } else {
+                    alert("ভুল ফাইল ফরম্যাট!");
+                }
+            } catch (err) {
+                alert("ফাইল পড়তে সমস্যা হয়েছে: " + err.message);
+            }
+        };
+        reader.readAsText(file);
     }
 
-    // লগইন হলে লোড
+    // লগইন হলে রেন্ডার
     if (document.getElementById('adminContent').style.display !== 'none') {
         loadProducts();
-        loadOrders();
+        renderOrders();
     }
 </script>
+
+</body>
+</html>
