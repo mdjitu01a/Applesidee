@@ -112,7 +112,8 @@
 <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycby2I6lCDZy8dZNDEYtu_tqY8lod4dXwzU5v6tp4Dj_if5F22n7FcEz7XoSj6uUWDcnA/exec';
 
-    let orders = JSON.parse(localStorage.getItem('orders')) || [];
+    let products = [];
+    let orders = [];
 
     const ADMIN_PASSWORD = "123456"; // এটা অবশ্যই চেঞ্জ করো
 
@@ -121,7 +122,7 @@
             document.getElementById('adminLoginModal').style.display = 'none';
             document.getElementById('adminContent').style.display = 'block';
             loadProducts();
-            renderOrders();
+            loadOrders();
         } else {
             alert("ভুল পাসওয়ার্ড!");
         }
@@ -130,14 +131,14 @@
     async function loadProducts() {
         try {
             const response = await fetch(API_URL);
-            const data = await response.json();
-            renderProducts(data);
+            products = await response.json();
+            renderProducts();
         } catch (err) {
             console.error('প্রোডাক্ট লোড হয়নি:', err);
         }
     }
 
-    function renderProducts(products) {
+    function renderProducts() {
         const list = document.getElementById('adminProductList');
         list.innerHTML = '';
         products.forEach(p => {
@@ -159,8 +160,80 @@
 
     async function deleteProduct(id) {
         if (confirm('প্রোডাক্ট ডিলিট করবেন?')) {
-            // Sheet থেকে ডিলিট করার জন্য এখানে লজিক যোগ করুন যদি চান, আপাতত লোকাল থেকে রিফ্রেশ করুন
+            // Google Sheets থেকে ডিলিট করার জন্য অতিরিক্ত লজিক যোগ করুন যদি চান, আপাতত রিফ্রেশ করুন
             loadProducts();
+        }
+    }
+
+    async function loadOrders() {
+        try {
+            const response = await fetch(API_URL + '?action=getOrders');
+            orders = await response.json();
+            renderOrders();
+        } catch (err) {
+            console.error('অর্ডার লোড হয়নি:', err);
+        }
+    }
+
+    function renderOrders() {
+        const tbody = document.getElementById('orderTableBody');
+        tbody.innerHTML = '';
+        orders.forEach(o => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${o.id}</td>
+                <td>${o.product}</td>
+                <td>${o.quantity}</td>
+                <td>৳${o.total}</td>
+                <td>${o.customerName}</td>
+                <td>${o.phone}</td>
+                <td>${o.address}</td>
+                <td>${o.paymentType}</td>
+                <td>${o.paymentMethod || 'N/A'}</td>
+                <td>${o.trxId || 'N/A'}</td>
+                <td>${o.screenshot || 'N/A'}</td>
+                <td>${o.time}</td>
+                <td class="status-${o.status.toLowerCase()}">${o.status}</td>
+                <td class="actions">
+                    <select onchange="updateOrderStatus('${o.id}', this.value)">
+                        <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                        <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+                        <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                        <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                        <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                    </select>
+                    <button onclick="deleteOrder('${o.id}')" class="btn btn-danger">ডিলিট</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    async function updateOrderStatus(id, status) {
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: "updateOrderStatus",
+                    id: id,
+                    status: status
+                })
+            });
+            const result = await response.json();
+            if (result.status === "success") {
+                loadOrders();
+            } else {
+                alert("সমস্যা হয়েছে: " + result.message);
+            }
+        } catch (err) {
+            alert("ইন্টারনেট চেক করো");
+        }
+    }
+
+    async function deleteOrder(id) {
+        if (confirm('এই অর্ডার ডিলিট করবেন?')) {
+            // Sheet থেকে ডিলিট করার জন্য লজিক যোগ করুন যদি চান, আপাতত রিফ্রেশ করুন
+            loadOrders();
         }
     }
 
@@ -222,7 +295,7 @@
         }
     });
 
-    // নতুন যোগ: এক্সপোর্ট ফাংশন
+    // এক্সপোর্ট ফাংশন
     function exportProducts() {
         const data = localStorage.getItem('products');
         if (!data || data === '[]') {
@@ -240,7 +313,7 @@
         alert("প্রোডাক্টস ফাইল ডাউনলোড হয়েছে!");
     }
 
-    // নতুন যোগ: ইমপোর্ট ফাংশন
+    // ইমপোর্ট ফাংশন
     function importProducts() {
         const file = document.getElementById('importFile').files[0];
         
@@ -270,7 +343,7 @@
     // লগইন হলে রেন্ডার
     if (document.getElementById('adminContent').style.display !== 'none') {
         loadProducts();
-        renderOrders();
+        loadOrders();
     }
 </script>
 
