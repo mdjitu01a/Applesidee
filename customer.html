@@ -54,7 +54,7 @@
 <header>
     <div class="header-inner">
         <div class="logo">
-            <!-- নতুন লোগো লিংক (তোমার রিপো থেকে সঠিক) -->
+            <!-- নতুন লোগো লিঙ্ক (তোমার রিপো থেকে সঠিক) -->
             <img src="https://raw.githubusercontent.com/mdjitu01a/appleside/main/IMG_1260.jpeg" alt="Apple Side">
         </div>
         <div class="search-box">
@@ -180,6 +180,7 @@
 <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycby2I6lCDZy8dZNDEYtu_tqY8lod4dXwzU5v6tp4Dj_if5F22n7FcEz7XoSj6uUWDcnA/exec';
 
+    let products = [];
     let orders = JSON.parse(localStorage.getItem('orders')) || [];
     let currentUserPhone = localStorage.getItem('customerPhone') || null;
 
@@ -190,15 +191,15 @@
     async function loadProducts() {
         try {
             const response = await fetch(API_URL);
-            const data = await response.json();
-            renderProducts(data);
+            products = await response.json();
+            renderProducts(products);
         } catch (err) {
             console.error('প্রোডাক্ট লোড হয়নি:', err);
             document.getElementById('productGrid').innerHTML = '<p style="text-align:center; color:red;">প্রোডাক্ট লোড করতে সমস্যা হয়েছে।</p>';
         }
     }
 
-    function renderProducts(products, filtered = products) {
+    function renderProducts(filtered = products) {
         const grid = document.getElementById('productGrid');
         grid.innerHTML = '';
         if (filtered.length === 0) {
@@ -209,11 +210,11 @@
             const card = document.createElement('div');
             card.className = 'product-card';
             card.innerHTML = `
-                <img src="${p.img}" class="product-img">
+                <img src="${p.img}" class="product-img" alt="${p.name}">
                 <div class="product-info">
                     <div class="product-title">${p.name}</div>
                     <div class="price">৳${p.price} ${p.old ? `<span class="old-price">৳${p.old}</span>` : ''}</div>
-                    <button class="buy-btn" onclick="openOrderForm('${p.name}', ${p.price})">
+                    <button class="buy-btn" onclick="openOrderForm('${p.name.replace(/'/g, "\\'")}', ${p.price})">
                         <i class="fab fa-whatsapp"></i> কিনুন
                     </button>
                 </div>
@@ -235,7 +236,7 @@
         document.getElementById('orderFormModal').style.display = 'flex';
     }
 
-    document.getElementById('orderDetailsForm').addEventListener('submit', e => {
+    document.getElementById('orderDetailsForm').addEventListener('submit', async e => {
         e.preventDefault();
         const fullName = document.getElementById('fullName').value.trim();
         const phone = document.getElementById('phone').value.trim();
@@ -268,36 +269,51 @@
         }
 
         const order = {
-            id: Date.now(),
-            product: productName,
-            price: productPrice,
-            quantity: quantity,
+            id: Date.now().toString(),
             customerName: fullName,
             phone: phone,
             address: address,
             email: email || 'নেই',
             size: size || 'N/A',
+            product: productName,
+            quantity: quantity,
+            price: productPrice,
+            total: productPrice * quantity,
             time: new Date().toLocaleString('bn-BD'),
-            status: 'pending',
             paymentType: paymentType,
             paymentMethod: paymentMethod,
             trxId: trxId,
-            screenshot: screenshot
+            screenshot: screenshot,
+            status: 'Pending'
         };
 
-        orders.push(order);
-        saveOrders();
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: "addOrder",
+                    ...order
+                })
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                orders.push(order);
+                saveOrders();
+                const message = `নতুন অর্ডার!\nপ্রোডাক্ট: ${productName}\nদাম: ৳${productPrice}\nপরিমাণ: ${quantity}\nটোটাল: ৳${productPrice * quantity}\nপেমেন্ট: ${paymentType === 'cod' ? 'COD' : 'Advance (' + paymentMethod + ')\nTrxID: ' + trxId + '\nস্ক্রিনশট: ' + screenshot}\nনাম: ${fullName}\nফোন: ${phone}\nঠিকানা: ${address}\nজিমেইল: ${email}\nসাইজ: ${size}`;
+                const whatsappUrl = `https://wa.me/8801713574848?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+                alert('অর্ডার সফলভাবে পাঠানো হয়েছে!');
+                document.getElementById('orderFormModal').style.display = 'none';
+                e.target.reset();
+                document.getElementById('advancePaymentSection').style.display = 'none';
 
-        const message = `নতুন অর্ডার!\nপ্রোডাক্ট: ${productName}\nদাম: ৳${productPrice}\nপরিমাণ: ${quantity}\nটোটাল: ৳${productPrice * quantity}\nপেমেন্ট: ${paymentType === 'cod' ? 'COD' : 'Advance (' + paymentMethod + ')\nTrxID: ' + trxId + '\nস্ক্রিনশট: ' + screenshot}\nনাম: ${fullName}\nফোন: ${phone}\nঠিকানা: ${address}\nজিমেইল: ${email}\nসাইজ: ${size}`;
-        const whatsappUrl = `https://wa.me/8801713574848?text=${encodeURIComponent(message)}`;
-        window.open(whatsappUrl, '_blank');
-
-        alert('অর্ডার সফলভাবে পাঠানো হয়েছে!');
-        document.getElementById('orderFormModal').style.display = 'none';
-        e.target.reset();
-        document.getElementById('advancePaymentSection').style.display = 'none';
-
-        if (currentUserPhone) renderMyOrders();
+                if (currentUserPhone) renderMyOrders();
+            } else {
+                alert('সমস্যা হয়েছে: ' + result.message);
+            }
+        } catch (err) {
+            alert('ইন্টারনেট চেক করো: ' + err.message);
+        }
     });
 
     // নতুন অ্যাড: পেমেন্ট টাইপ চেঞ্জ হলে অ্যাডভান্স সেকশন শো/হাইড
@@ -346,7 +362,7 @@
     document.getElementById('searchInput').addEventListener('input', e => {
         const term = e.target.value.toLowerCase().trim();
         const filtered = products.filter(p => p.name.toLowerCase().includes(term));
-        renderProducts(products, filtered);
+        renderProducts(filtered);
     });
 
     document.querySelectorAll('.cat-item').forEach(item => {
@@ -355,7 +371,7 @@
             item.classList.add('active');
             const cat = item.dataset.category;
             const filtered = cat === 'all' ? products : products.filter(p => p.category === cat);
-            renderProducts(products, filtered);
+            renderProducts(filtered);
         });
     });
 
@@ -390,7 +406,6 @@
 
     document.getElementById('resendLink').onclick = () => alert('নতুন OTP পাঠানো হয়েছে');
 
-    // পেজ লোড হলে প্রোডাক্ট লোড করো
     loadProducts();
 </script>
 
