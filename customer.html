@@ -54,7 +54,7 @@
 <header>
     <div class="header-inner">
         <div class="logo">
-            <!-- নতুন লোগো লিংক (তোমার রিপো থেকে সঠিক) -->
+            <!-- নতুন লোগো লিঙ্ক (তোমার রিপো থেকে সঠিক) -->
             <img src="https://raw.githubusercontent.com/mdjitu01a/appleside/main/IMG_1260.jpeg" alt="Apple Side">
         </div>
         <div class="search-box">
@@ -235,7 +235,7 @@
         document.getElementById('orderFormModal').style.display = 'flex';
     }
 
-    document.getElementById('orderDetailsForm').addEventListener('submit', e => {
+    document.getElementById('orderDetailsForm').addEventListener('submit', async e => {
         e.preventDefault();
         const fullName = document.getElementById('fullName').value.trim();
         const phone = document.getElementById('phone').value.trim();
@@ -268,31 +268,47 @@
         }
 
         const order = {
-            id: Date.now(),
-            product: productName,
-            price: productPrice,
-            quantity: quantity,
+            id: Date.now().toString(),
             customerName: fullName,
             phone: phone,
             address: address,
             email: email || 'নেই',
             size: size || 'N/A',
+            product: productName,
+            quantity: quantity,
+            price: productPrice,
+            total: productPrice * quantity,
             time: new Date().toLocaleString('bn-BD'),
-            status: 'pending',
             paymentType: paymentType,
             paymentMethod: paymentMethod,
             trxId: trxId,
-            screenshot: screenshot
+            screenshot: screenshot,
+            status: 'Pending'
         };
 
-        orders.push(order);
-        saveOrders();
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: "addOrder",
+                    ...order
+                })
+            });
+            const result = await response.json();
+            if (result.status === "success") {
+                orders.push(order);
+                saveOrders();
+                const message = `নতুন অর্ডার!\nপ্রোডাক্ট: ${productName}\nদাম: ৳${productPrice}\nপরিমাণ: ${quantity}\nটোটাল: ৳${productPrice * quantity}\nপেমেন্ট: ${paymentType === 'cod' ? 'COD' : 'Advance (' + paymentMethod + ')\nTrxID: ' + trxId + '\nস্ক্রিনশট: ' + screenshot}\nনাম: ${fullName}\nফোন: ${phone}\nঠিকানা: ${address}\nজিমেইল: ${email}\nসাইজ: ${size}`;
+                const whatsappUrl = `https://wa.me/8801713574848?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+                alert('অর্ডার সফলভাবে পাঠানো হয়েছে!');
+            } else {
+                alert('সমস্যা হয়েছে: ' + result.message);
+            }
+        } catch (err) {
+            alert('ইন্টারনেট চেক করো: ' + err.message);
+        }
 
-        const message = `নতুন অর্ডার!\nপ্রোডাক্ট: ${productName}\nদাম: ৳${productPrice}\nপরিমাণ: ${quantity}\nটোটাল: ৳${productPrice * quantity}\nপেমেন্ট: ${paymentType === 'cod' ? 'COD' : 'Advance (' + paymentMethod + ')\nTrxID: ' + trxId + '\nস্ক্রিনশট: ' + screenshot}\nনাম: ${fullName}\nফোন: ${phone}\nঠিকানা: ${address}\nজিমেইল: ${email}\nসাইজ: ${size}`;
-        const whatsappUrl = `https://wa.me/8801713574848?text=${encodeURIComponent(message)}`;
-        window.open(whatsappUrl, '_blank');
-
-        alert('অর্ডার সফলভাবে পাঠানো হয়েছে!');
         document.getElementById('orderFormModal').style.display = 'none';
         e.target.reset();
         document.getElementById('advancePaymentSection').style.display = 'none';
