@@ -54,6 +54,7 @@
 <header>
     <div class="header-inner">
         <div class="logo">
+            <!-- নতুন লোগো লিংক (তোমার রিপো থেকে সঠিক) -->
             <img src="https://raw.githubusercontent.com/mdjitu01a/appleside/main/IMG_1260.jpeg" alt="Apple Side">
         </div>
         <div class="search-box">
@@ -82,12 +83,13 @@
         <div class="cat-item" data-category="airpods">AirPods</div>
         <div class="cat-item" data-category="powerbank">পাওয়ার ব্যাংক</div>
         <div class="cat-item" data-category="selfie">সেলফি স্টিক</div>
-        <div class="cat-item" data-category="himdi">হিমডি ফায়ার</div>
+        <div class="cat-item" data-category="selfie">হিমডি ফায়ার</div>
     </div>
 
     <h2 class="section-title">হট ডিলস ও বেস্ট সেলার</h2>
     <div class="product-grid" id="productGrid"></div>
 
+    <!-- আমার অর্ডার সেকশন -->
     <div id="myOrdersSection" class="my-orders" style="display:none;">
         <h2>আমার অর্ডার</h2>
         <div id="myOrdersList"></div>
@@ -135,12 +137,14 @@
             <label>কতটি নিবেন *</label>
             <input type="number" id="quantity" min="1" value="1" required>
 
+            <!-- নতুন অ্যাড: পেমেন্ট অপশন -->
             <div class="payment-options">
                 <label>পেমেন্টের ধরন *</label>
                 <label><input type="radio" name="paymentType" value="cod" checked> ক্যাশ অন ডেলিভারি (COD)</label>
                 <label><input type="radio" name="paymentType" value="advance"> অ্যাডভান্স পেমেন্ট</label>
             </div>
 
+            <!-- নতুন অ্যাড: অ্যাডভান্স পেমেন্টের জন্য অপশন -->
             <div id="advancePaymentSection" class="payment-method" style="display:none;">
                 <label>পেমেন্ট মেথড *</label>
                 <select id="paymentMethod" required>
@@ -152,7 +156,7 @@
                 <div class="payment-instructions">
                     <p>Send Money করুন নম্বরে: <strong>01713574848</strong></p>
                     <p>পরিমাণ: অর্ডারের টোটাল টাকা (যেমন: ৳<span id="totalAmountDisplay"></span>)</p>
-                    <p>রেফারেন্সে অর্ডার নম্বর লিখুন</p>
+                    <p>রেফারেন্সে অর্ডার নম্বর লিখুন (যেমন: Inv2263b)</p>
                     <p>পেমেন্ট করার পর TrxID এবং স্ক্রিনশট দিন।</p>
                 </div>
 
@@ -176,7 +180,6 @@
 <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycby2I6lCDZy8dZNDEYtu_tqY8lod4dXwzU5v6tp4Dj_if5F22n7FcEz7XoSj6uUWDcnA/exec';
 
-    let products = [];
     let orders = JSON.parse(localStorage.getItem('orders')) || [];
     let currentUserPhone = localStorage.getItem('customerPhone') || null;
 
@@ -187,16 +190,15 @@
     async function loadProducts() {
         try {
             const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Network response was not ok');
-            products = await response.json();
-            renderProducts(products);
+            const data = await response.json();
+            renderProducts(data);
         } catch (err) {
             console.error('প্রোডাক্ট লোড হয়নি:', err);
             document.getElementById('productGrid').innerHTML = '<p style="text-align:center; color:red;">প্রোডাক্ট লোড করতে সমস্যা হয়েছে।</p>';
         }
     }
 
-    function renderProducts(filtered = products) {
+    function renderProducts(products, filtered = products) {
         const grid = document.getElementById('productGrid');
         grid.innerHTML = '';
         if (filtered.length === 0) {
@@ -207,11 +209,11 @@
             const card = document.createElement('div');
             card.className = 'product-card';
             card.innerHTML = `
-                <img src="${p.img}" class="product-img" alt="${p.name}">
+                <img src="${p.img}" class="product-img">
                 <div class="product-info">
                     <div class="product-title">${p.name}</div>
                     <div class="price">৳${p.price} ${p.old ? `<span class="old-price">৳${p.old}</span>` : ''}</div>
-                    <button class="buy-btn" onclick="openOrderForm('${p.name.replace(/'/g, "\\'")}', ${p.price})">
+                    <button class="buy-btn" onclick="openOrderForm('${p.name}', ${p.price})">
                         <i class="fab fa-whatsapp"></i> কিনুন
                     </button>
                 </div>
@@ -233,24 +235,23 @@
         document.getElementById('orderFormModal').style.display = 'flex';
     }
 
-    document.getElementById('orderDetailsForm').addEventListener('submit', async e => {
+    document.getElementById('orderDetailsForm').addEventListener('submit', e => {
         e.preventDefault();
-
         const fullName = document.getElementById('fullName').value.trim();
         const phone = document.getElementById('phone').value.trim();
         const address = document.getElementById('address').value.trim();
         const email = document.getElementById('email').value.trim();
         const size = document.getElementById('size').value.trim();
-        const quantity = Number(document.getElementById('quantity').value);
+        const quantity = document.getElementById('quantity').value;
         const productName = document.getElementById('orderProductName').value;
-        const productPrice = Number(document.getElementById('orderProductPrice').value);
+        const productPrice = document.getElementById('orderProductPrice').value;
         const paymentType = document.querySelector('input[name="paymentType"]:checked').value;
         let paymentMethod = '';
         let trxId = '';
         let screenshot = '';
 
-        if (!fullName || !phone || !address || !quantity || quantity < 1) {
-            alert('সব তথ্য ঠিকমতো দিন!');
+        if (!fullName || !phone || !address || !quantity) {
+            alert('নাম, ফোন, ঠিকানা এবং পরিমাণ দিন!');
             return;
         }
 
@@ -258,72 +259,48 @@
             paymentMethod = document.getElementById('paymentMethod').value;
             trxId = document.getElementById('trxId').value.trim();
             const screenshotFile = document.getElementById('paymentScreenshot').files[0];
-            screenshot = screenshotFile ? screenshotFile.name : 'নেই';
+            screenshot = screenshotFile ? screenshotFile.name : 'নেই';  // আসল আপলোড না করে শুধু নাম সেভ করছি (সার্ভার লাগবে আসলের জন্য)
 
             if (!paymentMethod || !trxId) {
-                alert('অ্যাডভান্স পেমেন্টের জন্য মেথড ও TrxID দিন!');
+                alert('পেমেন্ট মেথড, TrxID দিন!');
                 return;
             }
         }
 
         const order = {
-            id: Date.now().toString(),
+            id: Date.now(),
+            product: productName,
+            price: productPrice,
+            quantity: quantity,
             customerName: fullName,
             phone: phone,
             address: address,
             email: email || 'নেই',
             size: size || 'N/A',
-            product: productName,
-            quantity: quantity,
-            price: productPrice,
-            total: productPrice * quantity,
             time: new Date().toLocaleString('bn-BD'),
+            status: 'pending',
             paymentType: paymentType,
             paymentMethod: paymentMethod,
             trxId: trxId,
-            screenshot: screenshot,
-            status: 'Pending'
+            screenshot: screenshot
         };
 
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: "addOrder",
-                    ...order
-                })
-            });
+        orders.push(order);
+        saveOrders();
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.status);
-            }
+        const message = `নতুন অর্ডার!\nপ্রোডাক্ট: ${productName}\nদাম: ৳${productPrice}\nপরিমাণ: ${quantity}\nটোটাল: ৳${productPrice * quantity}\nপেমেন্ট: ${paymentType === 'cod' ? 'COD' : 'Advance (' + paymentMethod + ')\nTrxID: ' + trxId + '\nস্ক্রিনশট: ' + screenshot}\nনাম: ${fullName}\nফোন: ${phone}\nঠিকানা: ${address}\nজিমেইল: ${email}\nসাইজ: ${size}`;
+        const whatsappUrl = `https://wa.me/8801713574848?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
 
-            const result = await response.json();
+        alert('অর্ডার সফলভাবে পাঠানো হয়েছে!');
+        document.getElementById('orderFormModal').style.display = 'none';
+        e.target.reset();
+        document.getElementById('advancePaymentSection').style.display = 'none';
 
-            if (result.status === 'success') {
-                orders.push(order);
-                saveOrders();
-
-                const message = `নতুন অর্ডার!\nপ্রোডাক্ট: ${productName}\nদাম: ৳${productPrice}\nপরিমাণ: ${quantity}\nটোটাল: ৳${productPrice * quantity}\nপেমেন্ট: ${paymentType === 'cod' ? 'COD' : 'Advance (' + paymentMethod + ') - TrxID: ' + trxId}\nস্ক্রিনশট: ${screenshot}\nনাম: ${fullName}\nফোন: ${phone}\nঠিকানা: ${address}\nজিমেইল: ${email}\nসাইজ: ${size}`;
-                const whatsappUrl = `https://wa.me/8801713574848?text=${encodeURIComponent(message)}`;
-                window.open(whatsappUrl, '_blank');
-
-                alert('অর্ডার সফলভাবে পাঠানো হয়েছে!');
-                document.getElementById('orderFormModal').style.display = 'none';
-                e.target.reset();
-                document.getElementById('advancePaymentSection').style.display = 'none';
-
-                if (currentUserPhone) renderMyOrders();
-            } else {
-                alert('অর্ডার পাঠাতে সমস্যা: ' + (result.message || 'অজানা ত্রুটি'));
-            }
-        } catch (err) {
-            alert('অর্ডার পাঠাতে সমস্যা হয়েছে:\n' + err.message + '\n\nইন্টারনেট চেক করো বা পরে আবার চেষ্টা করো।');
-            console.error(err);
-        }
+        if (currentUserPhone) renderMyOrders();
     });
 
-    // পেমেন্ট টাইপ চেঞ্জ হলে অ্যাডভান্স সেকশন দেখানো/লুকানো
+    // নতুন অ্যাড: পেমেন্ট টাইপ চেঞ্জ হলে অ্যাডভান্স সেকশন শো/হাইড
     document.querySelectorAll('input[name="paymentType"]').forEach(radio => {
         radio.addEventListener('change', () => {
             document.getElementById('advancePaymentSection').style.display = radio.value === 'advance' ? 'block' : 'none';
@@ -343,7 +320,7 @@
             div.className = 'order-item';
             div.innerHTML = `
                 <h3>${o.product} × ${o.quantity}</h3>
-                <p>দাম: ৳${o.total}</p>
+                <p>দাম: ৳${o.price * o.quantity}</p>
                 <p>সময়: ${o.time}</p>
                 <p>পেমেন্ট: ${o.paymentType === 'cod' ? 'COD' : 'Advance (' + o.paymentMethod + ')'}</p>
                 <p>TrxID: ${o.trxId || 'N/A'}</p>
@@ -366,11 +343,10 @@
         document.getElementById('myOrdersBtn').style.display = 'block';
     }
 
-    // সার্চ এবং ক্যাটাগরি ফিল্টার (এখন পুরোপুরি ঠিক করা)
     document.getElementById('searchInput').addEventListener('input', e => {
         const term = e.target.value.toLowerCase().trim();
         const filtered = products.filter(p => p.name.toLowerCase().includes(term));
-        renderProducts(filtered);
+        renderProducts(products, filtered);
     });
 
     document.querySelectorAll('.cat-item').forEach(item => {
@@ -379,7 +355,7 @@
             item.classList.add('active');
             const cat = item.dataset.category;
             const filtered = cat === 'all' ? products : products.filter(p => p.category === cat);
-            renderProducts(filtered);
+            renderProducts(products, filtered);
         });
     });
 
@@ -390,7 +366,7 @@
     document.getElementById('sendOTPBtn').onclick = () => {
         const phone = document.getElementById('phoneNumber').value.trim();
         if (!phone.match(/^\+8801[3-9]\d{8}$/)) {
-            alert('সঠিক ফোন নম্বর দিন (+880 দিয়ে শুরু হবে)');
+            alert('সঠিক ফোন নম্বর দিন');
             return;
         }
         alert(`ডেমো OTP পাঠানো হয়েছে → 123456`);
