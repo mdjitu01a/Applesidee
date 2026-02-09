@@ -1,64 +1,160 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>অ্যাপল সাইড - অ্যাডমিন প্যানেল</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-:root {
-    --primary: #1e88e5;
-    --primary-dark: #1565c0;
-    --danger: #e53935;
-    --success: #43a047;
-    --warning: #fb8c00;
-    --light: #f8f9fa;
-    --dark: #212121;
-    --gray: #757575;
-    --approved: #1b5e20;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(to bottom, #f0f4f8, #d9e2ec); color: var(--dark); min-height: 100vh; }
-.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-header { background: var(--primary); color: white; padding: 15px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 1000; }
-.header-inner { display: flex; justify-content: space-between; align-items: center; }
-h1 { margin: 0; font-size: 1.8rem; }
-.btn-logout { background: white; color: var(--danger); border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-.section { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin: 25px 0; padding: 25px; }
-.section h2 { color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; display: inline-block; }
-form { display: grid; gap: 15px; }
-input, select { padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
-.preview-img { max-width: 180px; max-height: 180px; object-fit: contain; border-radius: 8px; margin-top: 10px; border: 1px solid #eee; }
-.btn-submit { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.3s; }
-.btn-submit:hover { background: var(--primary-dark); }
-.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-.product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; }
-.product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
-.product-img { width: 100%; height: 220px; object-fit: contain; padding: 20px; background: #f9fcff; }
-.product-info { padding: 15px; }
-.product-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
-.product-price { color: var(--danger); font-size: 1.2rem; font-weight: bold; }
-.actions { display: flex; gap: 10px; margin-top: 12px; }
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 14px; text-align: left; border-bottom: 1px solid #eee; }
-th { background: var(--primary); color: white; font-weight: 600; }
-tr:hover { background: #f8f9fa; }
-.status-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; }
-.status-pending { background: #fff3cd; color: #856404; }
-.status-confirmed { background: #d4edda; color: #155724; }
-.status-processing { background: #cce5ff; color: #004085; }
-.status-delivered { background: #c3e6cb; color: #1e7e34; }
-.status-cancelled { background: #f8d7da; color: #721c24; }
-.login-modal { display: flex; align-items: center; justify-content: center; height: 100vh; background: rgba(0,0,0,0.6); }
-.login-box { background: white; padding: 40px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অ্যাপল সাইড - অ্যাডমিন প্যানেল</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e88e5;
+            --primary-dark: #1565c0;
+            --danger: #e53935;
+            --success: #43a047;
+            --warning: #fb8c00;
+            --light: #f8f9fa;
+            --dark: #212121;
+            --gray: #757575;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(to bottom, #f0f4f8, #d9e2ec); 
+            color: var(--dark); 
+            min-height: 100vh;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header-inner { display: flex; justify-content: space-between; align-items: center; }
+        h1 { margin: 0; font-size: 1.8rem; }
+        .btn-logout { 
+            background: white; 
+            color: var(--danger); 
+            border: none; 
+            padding: 10px 18px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer;
+        }
+        .section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 25px 0;
+            padding: 25px;
+        }
+        .section h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+        form { display: grid; gap: 15px; }
+        input, select, textarea {
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .preview-img {
+            max-width: 180px;
+            max-height: 180px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #eee;
+        }
+        .btn-submit {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-submit:hover { background: var(--primary-dark); }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .product-img {
+            width: 100%;
+            height: 220px;
+            object-fit: contain;
+            padding: 20px;
+            background: #f9fcff;
+        }
+        .product-info { padding: 15px; }
+        .product-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
+        .product-price { color: var(--danger); font-size: 1.2rem; font-weight: bold; }
+        .actions { display: flex; gap: 10px; margin-top: 12px; }
+        .btn-edit { background: var(--warning); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+        .btn-delete { background: var(--danger); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th { background: var(--primary); color: white; }
+        tr:hover { background: #f8f9fa; }
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #d4edda; color: #155724; }
+        .status-processing { background: #cce5ff; color: #004085; }
+        .status-delivered { background: #c3e6cb; color: #1e7e34; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        .login-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .loading { text-align: center; padding: 40px; color: #666; font-size: 1.2rem; }
+    </style>
 </head>
 <body>
 
 <div class="login-modal" id="adminLoginModal">
     <div class="login-box">
         <h2 style="text-align:center; color:var(--primary);">অ্যাডমিন লগইন</h2>
-        <input type="password" id="adminPass" placeholder="পাসওয়ার্ড দিন" style="width:100%; padding:14px; margin:20px 0; border-radius:8px; border:1px solid #ddd;">
+        <input type="password" id="adminPass" placeholder="পাসওয়ার্ড দিন" style="width:100%; padding:14px; margin:20px 0;">
         <button onclick="checkAdmin()" class="btn-submit" style="width:100%;">লগইন</button>
     </div>
 </div>
@@ -67,43 +163,46 @@ tr:hover { background: #f8f9fa; }
     <header>
         <div class="header-inner">
             <h1>অ্যাপল সাইড - অ্যাডমিন প্যানেল</h1>
-            <button onclick="logoutAdmin()" class="btn-logout"><i class="fas fa-sign-out-alt"></i> লগআউট</button>
+            <button onclick="location.reload()" class="btn-logout"><i class="fas fa-sign-out-alt"></i> লগআউট</button>
         </div>
     </header>
 
     <div class="section">
-        <h2>নতুন প্রোডাক্ট যোগ করুন</h2>
+        <h2 id="formTitle">নতুন প্রোডাক্ট যোগ করুন</h2>
         <form id="productForm">
+            <input type="hidden" id="editId">
             <input type="text" id="name" placeholder="প্রোডাক্টের নাম" required>
             <input type="number" id="price" placeholder="দাম (৳)" required>
-            <input type="number" id="oldPrice" placeholder="আগের দাম (৳)">
-            <input type="text" id="img" placeholder="ছবির URL" required>
+            <input type="number" id="oldPrice" placeholder="আগের দাম (৳)" value="">
+            <input type="file" id="imageFile" accept="image/*">
+            <img id="preview" class="preview-img" src="" style="display:none;">
             <input type="text" id="category" placeholder="ক্যাটাগরি (airpods/powerbank/selfie)" required>
-            <input type="number" id="stock" placeholder="স্টক (পরিমাণ)" value="10" min="0">
-            <button type="submit" class="btn-submit">প্রোডাক্ট যোগ করুন</button>
+            <input type="number" id="stock" placeholder="স্টক" value="10" min="0">
+            <button type="submit" class="btn-submit">সেভ করুন</button>
         </form>
     </div>
 
     <div class="section">
         <h2>সকল প্রোডাক্ট</h2>
+        <div id="loadingProducts" class="loading">লোড হচ্ছে...</div>
         <div class="product-grid" id="adminProductList"></div>
     </div>
 
     <div class="section">
         <h2>সকল অর্ডার</h2>
+        <div id="loadingOrders" class="loading">লোড হচ্ছে...</div>
         <div style="overflow-x:auto;">
             <table id="orderTable">
                 <thead>
                     <tr>
-                        <th>অর্ডার আইডি</th>
+                        <th>আইডি</th>
                         <th>প্রোডাক্ট</th>
                         <th>পরিমাণ</th>
-                        <th>টোটাল দাম</th>
+                        <th>টোটাল</th>
                         <th>নাম</th>
                         <th>ফোন</th>
                         <th>ঠিকানা</th>
-                        <th>পেমেন্ট টাইপ</th>
-                        <th>মেথড</th>
+                        <th>পেমেন্ট</th>
                         <th>TrxID</th>
                         <th>স্ক্রিনশট</th>
                         <th>সময়</th>
@@ -118,144 +217,142 @@ tr:hover { background: #f8f9fa; }
 </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbwK2QXSp1i-s8cD5hEVp_0ONKzCbSyZxr2NEzobJlHdzlmxDN97a32sh1ADJgyqa-kW/exec';
-let products = [];
-let orders = [];
-const ADMIN_PASSWORD = "123456";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwK2QXSp1i-s8cD5hEVp_0ONKzCbSyZxr2NEzobJlHdzlmxDN97a32sh1ADJgyqa-kW/exec"; // তোমার URL দাও
 
-function checkAdmin() {
-    if(document.getElementById('adminPass').value === ADMIN_PASSWORD){
-        document.getElementById('adminLoginModal').style.display='none';
-        document.getElementById('adminContent').style.display='block';
-        loadProducts();
-        loadOrders();
-    } else alert("ভুল পাসওয়ার্ড!");
-}
+    const ADMIN_PASSWORD = "admin123"; // এটা অবশ্যই চেঞ্জ করো
 
-function logoutAdmin() {
-    location.reload();
-}
+    let products = [];
+    let orders = [];
 
-async function loadProducts(){
-    try{
-        const res = await fetch(API_URL + '?action=getProducts');
-        products = await res.json();
-        renderProducts();
-    } catch(err){
-        console.error(err);
+    function checkAdmin() {
+        const pass = document.getElementById("adminPass").value;
+        if (pass === ADMIN_PASSWORD) {
+            document.getElementById("adminLoginModal").style.display = "none";
+            document.getElementById("adminContent").style.display = "block";
+            loadProducts();
+            loadOrders();
+        } else {
+            alert("ভুল পাসওয়ার্ড!");
+        }
     }
-}
 
-function renderProducts(){
-    const grid = document.getElementById('adminProductList');
-    grid.innerHTML='';
-    if(products.length===0){
-        grid.innerHTML='<p style="text-align:center; color:#777;">কোনো প্রোডাক্ট নেই</p>';
-        return;
+    async function loadProducts() {
+        document.getElementById("loadingProducts").innerHTML = "লোড হচ্ছে...";
+        try {
+            const res = await fetch(API_URL);
+            products = await res.json();
+            renderProducts();
+        } catch (e) {
+            document.getElementById("adminProductList").innerHTML = "<p style='color:red; text-align:center;'>প্রোডাক্ট লোড হয়নি</p>";
+        }
     }
-    products.forEach(p=>{
-        const card = document.createElement('div');
-        card.className='product-card';
-        card.innerHTML=`
-            <img src="${p.img}" class="product-img" alt="${p.name}">
-            <div class="product-info">
-                <div class="product-title">${p.name}</div>
-                <div class="product-price">৳${p.price} ${p.old ? `<small>(আগের ৳${p.old})</small>` : ''}</div>
-                <div>ক্যাটাগরি: ${p.category}</div>
-                <div>স্টক: ${p.stock || 'N/A'}</div>
-            </div>
-            <div class="actions">
-                <button onclick="deleteProduct('${p.id}')" class="btn-danger" style="width:100%; margin-top:10px;">ডিলিট</button>
-            </div>
-        `;
-        grid.appendChild(card);
+
+    function renderProducts() {
+        const grid = document.getElementById("adminProductList");
+        grid.innerHTML = "";
+        if (products.length === 0) {
+            grid.innerHTML = "<p style='text-align:center;'>কোনো প্রোডাক্ট নেই</p>";
+            return;
+        }
+        products.forEach(p => {
+            const card = document.createElement("div");
+            card.className = "product-card";
+            card.innerHTML = `
+                <img src="${p.img}" class="product-img" alt="${p.name}">
+                <div class="product-info">
+                    <div class="product-title">${p.name}</div>
+                    <div class="product-price">৳${p.price} ${p.old ? `<small>(আগের ৳${p.old})</small>` : ''}</div>
+                    <div>ক্যাটাগরি: ${p.category}</div>
+                    <div>স্টক: ${p.stock}</div>
+                </div>
+                <div class="actions">
+                    <button class="btn-edit" onclick="editProduct('${p.id}')">এডিট</button>
+                    <button class="btn-delete" onclick="deleteProduct('${p.id}')">ডিলিট</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function editProduct(id) {
+        const p = products.find(x => x.id == id);
+        if (!p) return;
+        document.getElementById("formTitle").textContent = "প্রোডাক্ট এডিট করুন";
+        document.getElementById("editId").value = p.id;
+        document.getElementById("name").value = p.name;
+        document.getElementById("price").value = p.price;
+        document.getElementById("oldPrice").value = p.old || "";
+        document.getElementById("category").value = p.category;
+        document.getElementById("stock").value = p.stock;
+        document.getElementById("preview").src = p.img;
+        document.getElementById("preview").style.display = "block";
+        window.scrollTo(0, 0);
+    }
+
+    document.getElementById("productForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        alert("এই ফাংশন এখনো সম্পূর্ণ করা হয়নি।\n(ইমেজ আপলোড + base64 সাপোর্ট যোগ করতে হবে)");
+        // ভবিষ্যতে base64 দিয়ে আপলোড করার কোড এখানে যোগ করতে হবে
     });
-}
 
-document.getElementById('productForm').addEventListener('submit', async e=>{
-    e.preventDefault();
-    const data={
-        action:'addProduct',
-        name: document.getElementById('name').value,
-        price: document.getElementById('price').value,
-        oldPrice: document.getElementById('oldPrice').value,
-        img: document.getElementById('img').value,
-        category: document.getElementById('category').value,
-        stock: document.getElementById('stock').value
-    };
-    try{
-        const res = await fetch(API_URL, {
-            method:'POST',
-            body: JSON.stringify(data)
+    async function deleteProduct(id) {
+        if (!confirm("প্রোডাক্ট ডিলিট করবেন?")) return;
+        alert("ডিলিট ফাংশন এখনো সম্পূর্ণ করা হয়নি।");
+    }
+
+    async function loadOrders() {
+        try {
+            const res = await fetch(API_URL + "?action=getOrders");
+            orders = await res.json();
+            renderOrders();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function renderOrders() {
+        const tbody = document.getElementById("orderTableBody");
+        tbody.innerHTML = "";
+        orders.forEach(o => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${o.id}</td>
+                <td>${o.product}</td>
+                <td>${o.quantity}</td>
+                <td>৳${o.total}</td>
+                <td>${o.customerName}</td>
+                <td>${o.phone}</td>
+                <td>${o.address}</td>
+                <td>${o.paymentType}</td>
+                <td>${o.trxId || '-'}</td>
+                <td>${o.screenshot ? '<a href="'+o.screenshot+'" target="_blank">দেখুন</a>' : '-'}</td>
+                <td>${o.time}</td>
+                <td><span class="status-badge status-${o.status.toLowerCase()}">${o.status}</span></td>
+                <td>
+                    <select onchange="updateOrderStatus('${o.id}', this.value)">
+                        <option ${o.status==='Pending'?'selected':''}>Pending</option>
+                        <option ${o.status==='Confirmed'?'selected':''}>Confirmed</option>
+                        <option ${o.status==='Processing'?'selected':''}>Processing</option>
+                        <option ${o.status==='Delivered'?'selected':''}>Delivered</option>
+                        <option ${o.status==='Cancelled'?'selected':''}>Cancelled</option>
+                    </select>
+                </td>
+            `;
+            tbody.appendChild(tr);
         });
-        const result = await res.json();
-        if(result.status==='success') loadProducts();
-    } catch(err){ console.error(err); }
-});
+    }
 
-async function deleteProduct(id){
-    if(!confirm('প্রোডাক্ট ডিলিট করবেন?')) return;
-    try{
-        const res = await fetch(API_URL, {
-            method:'POST',
-            body: JSON.stringify({action:'deleteProduct', id})
-        });
-        const result = await res.json();
-        if(result.status==='deleted') loadProducts();
-    } catch(err){ console.error(err); }
-}
-
-async function loadOrders(){
-    try{
-        const res = await fetch(API_URL + '?action=getOrders');
-        orders = await res.json();
-        renderOrders();
-    } catch(err){ console.error(err); }
-}
-
-function renderOrders(){
-    const tbody = document.getElementById('orderTableBody');
-    tbody.innerHTML='';
-    orders.forEach(o=>{
-        const row=document.createElement('tr');
-        row.innerHTML=`
-            <td>${o.id}</td>
-            <td>${o.product}</td>
-            <td>${o.quantity}</td>
-            <td>৳${o.total}</td>
-            <td>${o.customerName}</td>
-            <td>${o.phone}</td>
-            <td>${o.address}</td>
-            <td>${o.paymentType}</td>
-            <td>${o.paymentMethod || 'N/A'}</td>
-            <td>${o.trxId || 'N/A'}</td>
-            <td>${o.screenshot || 'N/A'}</td>
-            <td>${o.time}</td>
-            <td><span class="status-badge status-${o.status.toLowerCase()}">${o.status}</span></td>
-            <td class="actions">
-                <select onchange="updateOrderStatus('${o.id}', this.value)">
-                    <option value="Pending" ${o.status==='Pending'?'selected':''}>Pending</option>
-                    <option value="Confirmed" ${o.status==='Confirmed'?'selected':''}>Confirmed</option>
-                    <option value="Processing" ${o.status==='Processing'?'selected':''}>Processing</option>
-                    <option value="Delivered" ${o.status==='Delivered'?'selected':''}>Delivered</option>
-                    <option value="Cancelled" ${o.status==='Cancelled'?'selected':''}>Cancelled</option>
-                </select>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-async function updateOrderStatus(id,status){
-    try{
-        const res = await fetch(API_URL, {
-            method:'POST',
-            body: JSON.stringify({action:'updateOrderStatus', id, status})
-        });
-        const result = await res.json();
-        if(result.status==='success') loadOrders();
-    } catch(err){ console.error(err); }
-}
+    async function updateOrderStatus(id, status) {
+        try {
+            await fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "updateOrderStatus", id, status })
+            });
+            loadOrders();
+        } catch (e) {
+            console.error(e);
+        }
+    }
 </script>
 </body>
 </html>
