@@ -1,65 +1,29 @@
 <!DOCTYPE html>
 <html lang="bn">
-<header>
-    <div class="header-inner">
-        <div class="logo">
-            <img src="https://raw.githubusercontent.com/mdjitu01a/appleside/main/IMG_1260.jpeg" alt="অ্যাপল সাইড" style="height:50px; border-radius:8px;">
-        </div>
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="প্রোডাক্ট সার্চ করুন...">
-        </div>
-        <div class="header-right">
-            <button id="customerLoginBtn" class="login-btn">লগইন / সাইন আপ</button>
-            <button id="myOrdersBtn" class="orders-btn" style="display:none;">আমার অর্ডার</button>
-            <div class="cart-btn" id="cartToggle">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="cart-count" id="cartCount">0</span>
-            </div>
-        </div>
-    </div>
-</header>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>অ্যাপল সাইড - অ্যাডমিন প্যানেল</title>
+    <title>অ্যাপল সাইড - অ্যাডমিন</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root {
-            --primary: #1e88e5;
-            --danger: #e53935;
-            --light: #f8f9fa;
-            --dark: #212121;
-        }
-        body { font-family: Arial, sans-serif; background: var(--light); margin:0; padding:0; }
+        body { font-family: Arial, sans-serif; margin:0; background:#f0f2f5; }
         header {
-            background: var(--primary);
+            background: #1e88e5;
             color: white;
-            padding: 15px;
+            padding: 12px 16px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             position: sticky;
             top: 0;
             z-index: 100;
         }
         .logo img { height: 45px; border-radius: 8px; }
         .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
-        .section { background: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-        form { display: grid; gap: 14px; }
-        input, select { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
-        .preview { max-width: 220px; max-height: 220px; object-fit: contain; border: 1px solid #ddd; border-radius: 6px; margin-top: 8px; }
-        .btn { padding: 12px 24px; border: none; border-radius: 6px; color: white; font-size: 16px; cursor: pointer; }
-        .btn-primary { background: var(--primary); }
-        .btn-danger { background: var(--danger); }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-        .product-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .product-img { width: 100%; height: 180px; object-fit: contain; padding: 15px; background: #f9f9f9; }
-        .card-body { padding: 12px; }
+        .section { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: var(--primary); color: white; }
-        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-delivered { background: #d4edda; color: #155724; }
+        th { background: #1e88e5; color: white; }
         .login-box {
             max-width: 380px;
             margin: 100px auto;
@@ -69,19 +33,20 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             text-align: center;
         }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; color: white; cursor: pointer; }
+        .btn-primary { background: #1e88e5; }
+        .btn-danger { background: #e53935; }
     </style>
 </head>
 <body>
 
-<!-- লগইন -->
-<div id="loginScreen" class="login-box">
+<div id="login" class="login-box">
     <h2>অ্যাডমিন লগইন</h2>
-    <input type="password" id="adminPass" placeholder="পাসওয়ার্ড" style="width:100%; margin:20px 0;">
-    <button class="btn btn-primary" onclick="checkLogin()">লগইন</button>
+    <input type="password" id="pass" placeholder="পাসওয়ার্ড" style="width:100%; padding:14px; margin:20px 0; font-size:18px;">
+    <button class="btn btn-primary" style="width:100%; padding:14px;" onclick="login()">লগইন</button>
 </div>
 
-<!-- মূল কন্টেন্ট -->
-<div id="mainContent" style="display:none;">
+<div id="admin" style="display:none;">
     <header>
         <div class="logo">
             <img src="https://raw.githubusercontent.com/mdjitu01a/appleside/main/IMG_1260.jpeg" alt="Logo">
@@ -91,40 +56,23 @@
     </header>
 
     <div class="container">
-
-        <!-- প্রোডাক্ট যোগ করা -->
-        <div class="section">
-            <h3>নতুন প্রোডাক্ট যোগ করুন</h3>
-            <form id="productForm">
-                <input type="text" id="name" placeholder="প্রোডাক্টের নাম" required>
-                <input type="number" id="price" placeholder="দাম (৳)" required>
-                <input type="number" id="oldPrice" placeholder="আগের দাম (ঐচ্ছিক)">
-                <input type="file" id="image" accept="image/*" required>
-                <img id="preview" class="preview" src="" alt="প্রিভিউ">
-                <input type="text" id="category" placeholder="ক্যাটাগরি (airpods / powerbank / selfie)" required>
-                <input type="number" id="stock" placeholder="স্টক" value="10" min="0">
-                <button type="submit" class="btn btn-primary">প্রোডাক্ট যোগ করুন</button>
-            </form>
-        </div>
-
-        <!-- প্রোডাক্ট লিস্ট -->
         <div class="section">
             <h3>সকল প্রোডাক্ট</h3>
-            <div class="product-grid" id="productList"></div>
+            <div id="prodList" style="white-space: pre-wrap; font-family: monospace;"></div>
         </div>
 
-        <!-- অর্ডার লিস্ট -->
         <div class="section">
             <h3>সকল অর্ডার</h3>
-            <table id="orderTable">
+            <table id="orderTbl">
                 <thead>
                     <tr>
-                        <th>আইডি</th>
+                        <th>ID</th>
                         <th>প্রোডাক্ট</th>
                         <th>পরিমাণ</th>
                         <th>টোটাল</th>
                         <th>নাম</th>
                         <th>ফোন</th>
+                        <th>ঠিকানা</th>
                         <th>স্ট্যাটাস</th>
                     </tr>
                 </thead>
@@ -136,124 +84,54 @@
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwK2QXSp1i-s8cD5hEVp_0ONKzCbSyZxr2NEzobJlHdzlmxDN97a32sh1ADJgyqa-kW/exec";
-    const PASSWORD = "1234"; // এটা চেঞ্জ করো
+    const ADMIN_PASS = "1234"; // এখানে তোমার পাসওয়ার্ড রাখো
 
-    // লগইন চেক
-    function checkLogin() {
-        if (document.getElementById("adminPass").value === PASSWORD) {
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("mainContent").style.display = "block";
-            loadProducts();
-            loadOrders();
+    function login() {
+        if (document.getElementById("pass").value === ADMIN_PASS) {
+            document.getElementById("login").style.display = "none";
+            document.getElementById("admin").style.display = "block";
+            loadAll();
         } else {
-            alert("ভুল পাসওয়ার্ড!");
+            alert("ভুল পাসওয়ার্ড");
         }
     }
 
-    // ইমেজ প্রিভিউ
-    document.getElementById("image").onchange = function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                document.getElementById("preview").src = ev.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    // প্রোডাক্ট যোগ
-    document.getElementById("productForm").onsubmit = async function(e) {
-        e.preventDefault();
-
-        const file = document.getElementById("image").files[0];
-        let imgBase64 = "";
-
-        if (file) {
-            imgBase64 = await new Promise(resolve => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.readAsDataURL(file);
-            });
-        }
-
-        const data = {
-            action: "addProduct",
-            name: document.getElementById("name").value,
-            price: document.getElementById("price").value,
-            oldPrice: document.getElementById("oldPrice").value || "",
-            category: document.getElementById("category").value,
-            stock: document.getElementById("stock").value,
-            imgBase64: imgBase64
-        };
-
+    async function loadAll() {
         try {
-            const res = await fetch(API_URL, {
-                method: "POST",
-                body: JSON.stringify(data)
-            });
-            const result = await res.json();
-            if (result.status === "success") {
-                alert("প্রোডাক্ট যোগ হয়েছে!");
-                loadProducts();
-                document.getElementById("productForm").reset();
-                document.getElementById("preview").src = "";
-            } else {
-                alert("কিছু সমস্যা হয়েছে");
-            }
-        } catch (err) {
-            alert("ইন্টারনেট চেক করুন");
-        }
-    };
+            // প্রোডাক্ট
+            const prodRes = await fetch(API_URL);
+            const products = await prodRes.json();
+            document.getElementById("prodList").textContent = JSON.stringify(products, null, 2);
 
-    async function loadProducts() {
-        try {
-            const res = await fetch(API_URL);
-            const data = await res.json();
-            const list = document.getElementById("productList");
-            list.innerHTML = "";
-            data.forEach(p => {
-                const card = document.createElement("div");
-                card.className = "product-card";
-                card.innerHTML = `
-                    <img src="${p.img}" class="product-img" alt="${p.name}">
-                    <div class="card-body">
-                        <h4>${p.name}</h4>
-                        <p>দাম: ৳${p.price} ${p.old ? `<s>৳${p.old}</s>` : ''}</p>
-                        <p>ক্যাটাগরি: ${p.category}</p>
-                        <p>স্টক: ${p.stock}</p>
-                    </div>
-                `;
-                list.appendChild(card);
-            });
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    async function loadOrders() {
-        try {
-            const res = await fetch(API_URL + "?action=getOrders");
-            const data = await res.json();
+            // অর্ডার
+            const orderRes = await fetch(API_URL + "?action=getOrders");
+            const orders = await orderRes.json();
             const tbody = document.getElementById("orderBody");
             tbody.innerHTML = "";
-            data.forEach(o => {
+            orders.forEach(o => {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td>${o.id}</td>
-                    <td>${o.product}</td>
-                    <td>${o.quantity}</td>
-                    <td>৳${o.total}</td>
-                    <td>${o.customerName}</td>
-                    <td>${o.phone}</td>
-                    <td><span class="status-badge status-${o.status.toLowerCase()}">${o.status}</span></td>
+                    <td>${o.id || ''}</td>
+                    <td>${o.product || ''}</td>
+                    <td>${o.quantity || ''}</td>
+                    <td>${o.total || ''}</td>
+                    <td>${o.customerName || ''}</td>
+                    <td>${o.phone || ''}</td>
+                    <td>${o.address || ''}</td>
+                    <td>${o.status || 'Pending'}</td>
                 `;
                 tbody.appendChild(tr);
             });
         } catch (err) {
             console.error(err);
+            alert("ডেটা লোড করতে সমস্যা হয়েছে। ইন্টারনেট চেক করুন।");
         }
     }
+
+    // এন্টার প্রেস করলে লগইন
+    document.getElementById("pass").addEventListener("keypress", e => {
+        if (e.key === "Enter") login();
+    });
 </script>
 </body>
 </html>
