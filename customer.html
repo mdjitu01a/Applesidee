@@ -3,142 +3,602 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>অ্যাপল সাইড</title>
+    <title>অ্যাপল সাইড - সেরা দামে অরিজিনাল প্রোডাক্ট</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; margin:0; background:#f8f9fa; }
+        :root {
+            --primary: #1e88e5;
+            --primary-dark: #1565c0;
+            --danger: #e53935;
+            --success: #43a047;
+            --light: #f8f9fa;
+            --dark: #212121;
+            --gray: #757575;
+            --bg: #f0f4f8;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: var(--bg); 
+            color: var(--dark); 
+            min-height: 100vh;
+        }
         header {
-            background: #1e88e5;
+            background: var(--primary);
             color: white;
-            padding: 12px 16px;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header-inner {
+            max-width: 1400px;
+            margin: auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            flex-wrap: wrap;
+            gap: 15px;
         }
-        .logo img { height: 48px; border-radius: 8px; }
-        .search-box { flex: 1; margin: 0 15px; max-width: 500px; }
-        .search-box input { width: 100%; padding: 10px 16px; border-radius: 30px; border: none; font-size: 16px; }
-        .cart-icon { font-size: 1.6rem; position: relative; cursor: pointer; }
+        .logo img { height: 55px; border-radius: 12px; }
+        .search-box {
+            flex: 1;
+            max-width: 600px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .login-btn { background: white; color: var(--primary); border: none; }
+        .orders-btn { background: white; color: var(--success); border: none; }
+        .cart-btn {
+            font-size: 1.8rem;
+            color: white;
+            position: relative;
+            cursor: pointer;
+        }
         .cart-count {
             position: absolute;
-            top: -8px;
-            right: -12px;
-            background: #e53935;
+            top: -10px;
+            right: -10px;
+            background: var(--danger);
             color: white;
-            font-size: 12px;
-            width: 20px;
-            height: 20px;
+            font-size: 0.8rem;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://raw.githubusercontent.com/mdjitu01a/appleside/main/IMG_1260.jpeg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 120px 20px;
+            margin-top: 70px;
+        }
+        .hero h1 { font-size: 2.8rem; margin-bottom: 10px; }
+        .hero p { font-size: 1.3rem; margin-bottom: 20px; }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+
+        .categories {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            padding: 20px 0;
+            background: white;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .cat-item {
+            min-width: 110px;
+            text-align: center;
+            padding: 12px 20px;
+            background: #f0f4f8;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .cat-item.active, .cat-item:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin: 30px 0 20px;
+            text-align: center;
+        }
+
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
-            padding: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 25px;
         }
         .product-card {
             background: white;
-            border-radius: 10px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            text-align: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
         }
         .product-img {
             width: 100%;
-            height: 180px;
+            height: 240px;
             object-fit: contain;
-            padding: 12px;
-            background: #f9f9f9;
+            padding: 20px;
+            background: #f9fcff;
         }
-        .card-body { padding: 10px; }
-        .price { font-size: 1.3rem; color: #e53935; font-weight: bold; }
-        .old-price { text-decoration: line-through; color: #777; font-size: 0.95rem; }
+        .product-info {
+            padding: 15px;
+            text-align: center;
+        }
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            height: 50px;
+            overflow: hidden;
+        }
+        .price {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--danger);
+            margin-bottom: 10px;
+        }
+        .old-price {
+            text-decoration: line-through;
+            color: var(--gray);
+            font-size: 1rem;
+            margin-left: 10px;
+        }
         .buy-btn {
             background: #25D366;
             color: white;
             border: none;
-            padding: 10px;
-            width: 90%;
-            border-radius: 6px;
-            margin: 8px auto;
-            display: block;
-            cursor: pointer;
+            padding: 12px;
+            border-radius: 50px;
+            width: 100%;
             font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
         }
+        .buy-btn:hover { background: #20b858; }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 16px;
+            padding: 30px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .close-btn {
+            float: right;
+            font-size: 2.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+        .close-btn:hover { color: var(--danger); }
+
+        .order-form label {
+            display: block;
+            margin: 12px 0 6px;
+            font-weight: 600;
+            color: #333;
+        }
+        .order-form input, .order-form select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background: #25D366;
+            color: white;
+            border-radius: 50%;
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            z-index: 999;
+            transition: transform 0.3s;
+        }
+        .whatsapp-float:hover { transform: scale(1.1); }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">
-        <img src="https://raw.githubusercontent.com/mdjitu01a/appleside/main/IMG_1260.jpeg" alt="অ্যাপল সাইড">
-    </div>
-    <div class="search-box">
-        <input type="text" id="search" placeholder="প্রোডাক্ট খুঁজুন...">
-    </div>
-    <div class="cart-icon" id="cartBtn">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="cart-count" id="cartCount">0</span>
+    <div class="header-inner">
+        <div class="logo">
+            <img src="https://raw.githubusercontent.com/mdjitu01a/appleside/main/IMG_1260.jpeg" alt="Apple Side">
+        </div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="প্রোডাক্ট সার্চ করুন...">
+        </div>
+        <div class="header-right">
+            <button id="customerLoginBtn" class="btn login-btn">লগইন / সাইন আপ</button>
+            <button id="myOrdersBtn" class="btn orders-btn" style="display:none;">আমার অর্ডার</button>
+            <div class="cart-btn" id="cartToggle">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+        </div>
     </div>
 </header>
 
-<div class="product-grid" id="productGrid"></div>
+<div class="hero">
+    <h1>স্বাগতম অ্যাপল সাইডে!</h1>
+    <p>সেরা দামে অরিজিনাল প্রোডাক্ট</p>
+    <button class="btn" style="background:var(--danger); color:white; padding:12px 30px; font-size:1.2rem;">হট ডিল দেখুন</button>
+</div>
+
+<div class="container">
+    <div class="categories" id="categories">
+        <div class="cat-item active" data-category="all">সব</div>
+        <div class="cat-item" data-category="airpods">AirPods</div>
+        <div class="cat-item" data-category="powerbank">পাওয়ার ব্যাংক</div>
+        <div class="cat-item" data-category="selfie">সেলফি স্টিক</div>
+        <div class="cat-item" data-category="selfie">হিমডি ফায়ার</div>
+    </div>
+
+    <h2 class="section-title">হট ডিলস ও বেস্ট সেলার</h2>
+    <div class="product-grid" id="productGrid"></div>
+
+    <!-- আমার অর্ডার সেকশন -->
+    <div id="myOrdersSection" class="my-orders" style="display:none;">
+        <h2>আমার অর্ডার</h2>
+        <div id="myOrdersList"></div>
+    </div>
+</div>
+
+<!-- লগইন মোডাল -->
+<div class="modal" id="customerModal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="document.getElementById('customerModal').style.display='none'">×</span>
+        <h2 style="text-align:center; color:var(--primary);">ফোন দিয়ে লগইন</h2>
+        <div id="phoneStep">
+            <input type="tel" id="phoneNumber" placeholder="+8801XXXXXXXXX" style="width:100%; padding:14px; margin:15px 0;">
+            <button id="sendOTPBtn" class="btn" style="width:100%; background:var(--primary); color:white;">OTP পাঠান</button>
+        </div>
+        <div id="otpStep" style="display:none;">
+            <input type="text" id="otpCode" placeholder="৬ ডিজিট OTP" maxlength="6" style="width:100%; padding:14px; font-size:22px; text-align:center; letter-spacing:10px; margin:15px 0;">
+            <button id="verifyOTPBtn" class="btn" style="width:100%; background:var(--success); color:white;">যাচাই করুন</button>
+            <p style="text-align:center; margin-top:10px;"><small id="resendLink" style="color:var(--primary); cursor:pointer;">আবার পাঠান</small></p>
+        </div>
+    </div>
+</div>
+
+<!-- অর্ডার ফর্ম মোডাল -->
+<div class="modal" id="orderFormModal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="document.getElementById('orderFormModal').style.display='none'">×</span>
+        <h2 style="text-align:center; color:var(--primary);">অর্ডার দিন</h2>
+        <form id="orderDetailsForm" class="order-form">
+            <label>পুরো নাম *</label>
+            <input type="text" id="fullName" required>
+
+            <label>ফোন নম্বর *</label>
+            <input type="tel" id="phone" required>
+
+            <label>ডেলিভারি ঠিকানা *</label>
+            <input type="text" id="address" required>
+
+            <label>জিমেইল (ঐচ্ছিক)</label>
+            <input type="email" id="email">
+
+            <label>সাইজ (যদি থাকে)</label>
+            <input type="text" id="size">
+
+            <label>কতটি নিবেন *</label>
+            <input type="number" id="quantity" min="1" value="1" required>
+
+            <div class="payment-options">
+                <label>পেমেন্টের ধরন *</label>
+                <label><input type="radio" name="paymentType" value="cod" checked> ক্যাশ অন ডেলিভারি (COD)</label>
+                <label><input type="radio" name="paymentType" value="advance"> অ্যাডভান্স পেমেন্ট</label>
+            </div>
+
+            <div id="advancePaymentSection" class="payment-method" style="display:none;">
+                <label>পেমেন্ট মেথড *</label>
+                <select id="paymentMethod" required>
+                    <option value="">সিলেক্ট করুন</option>
+                    <option value="bkash">bKash</option>
+                    <option value="nagad">Nagad</option>
+                </select>
+
+                <div class="payment-instructions">
+                    <p>Send Money করুন নম্বরে: <strong>01713574848</strong></p>
+                    <p>পরিমাণ: অর্ডারের টোটাল টাকা (যেমন: ৳<span id="totalAmountDisplay"></span>)</p>
+                    <p>রেফারেন্সে অর্ডার নম্বর লিখুন</p>
+                    <p>পেমেন্ট করার পর TrxID এবং স্ক্রিনশট দিন।</p>
+                </div>
+
+                <label>Transaction ID (TrxID) *</label>
+                <input type="text" id="trxId" placeholder="যেমন: ABCD123456">
+
+                <label>পেমেন্ট স্ক্রিনশট আপলোড করুন (ঐচ্ছিক)</label>
+                <input type="file" id="paymentScreenshot" accept="image/*">
+            </div>
+
+            <input type="hidden" id="orderProductName">
+            <input type="hidden" id="orderProductPrice">
+
+            <button type="submit" class="btn-submit" style="width:100%; margin-top:25px;">অর্ডার পাঠান</button>
+        </form>
+    </div>
+</div>
+
+<a href="https://wa.me/8801713574848" class="whatsapp-float"><i class="fab fa-whatsapp"></i></a>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwK2QXSp1i-s8cD5hEVp_0ONKzCbSyZxr2NEzobJlHdzlmxDN97a32sh1ADJgyqa-kW/exec";
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyPITjbvBHFj3bl5heQS0VnQToduBOIrNwnSUoOBZ7eDCMMDgTvTNwce9Z278sZ-PtJ/exec';
 
     let products = [];
+    let orders = JSON.parse(localStorage.getItem('orders')) || [];
+    let currentUserPhone = localStorage.getItem('customerPhone') || null;
+
+    function saveOrders() {
+        localStorage.setItem('orders', JSON.stringify(orders));
+    }
 
     async function loadProducts() {
         try {
-            const res = await fetch(API_URL);
-            if (!res.ok) throw new Error("Network response was not ok");
-            products = await res.json();
+            const response = await fetch(API_URL);
+            products = await response.json();
             renderProducts(products);
         } catch (err) {
-            console.error(err);
-            document.getElementById("productGrid").innerHTML = "<p style='text-align:center; color:red; padding:40px;'>প্রোডাক্ট লোড করতে সমস্যা হয়েছে। ইন্টারনেট চেক করুন।</p>";
+            console.error('প্রোডাক্ট লোড হয়নি:', err);
+            document.getElementById('productGrid').innerHTML = '<p style="text-align:center; color:red; padding:40px;">প্রোডাক্ট লোড করতে সমস্যা হয়েছে।</p>';
         }
     }
 
-    function renderProducts(list) {
-        const grid = document.getElementById("productGrid");
-        grid.innerHTML = "";
-        if (list.length === 0) {
-            grid.innerHTML = "<p style='text-align:center; padding:40px;'>কোনো প্রোডাক্ট পাওয়া যায়নি</p>";
+    function renderProducts(filtered = products) {
+        const grid = document.getElementById('productGrid');
+        grid.innerHTML = '';
+        if (filtered.length === 0) {
+            grid.innerHTML = '<p style="text-align:center; grid-column:1/-1; padding:40px; color:#777;">কোনো প্রোডাক্ট পাওয়া যায়নি</p>';
             return;
         }
-        list.forEach(p => {
-            const card = document.createElement("div");
-            card.className = "product-card";
+        filtered.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
             card.innerHTML = `
-                <img src="${p.img || 'https://via.placeholder.com/200?text=No+Image'}" class="product-img" alt="${p.name}">
-                <div class="card-body">
-                    <h3>${p.name}</h3>
-                    <div class="price">৳${p.price}</div>
-                    ${p.old ? `<div class="old-price">৳${p.old}</div>` : ''}
-                    <button class="buy-btn">কিনুন</button>
+                <img src="${p.img}" class="product-img" alt="${p.name}">
+                <div class="product-info">
+                    <div class="product-title">${p.name}</div>
+                    <div class="price">৳${p.price} ${p.old ? `<span class="old-price">৳${p.old}</span>` : ''}</div>
+                    <button class="buy-btn" onclick="openOrderForm('${p.name.replace(/'/g, "\\'")}', ${p.price})">
+                        <i class="fab fa-whatsapp"></i> কিনুন
+                    </button>
                 </div>
             `;
             grid.appendChild(card);
         });
     }
 
-    // সার্চ
-    document.getElementById("search").addEventListener("input", e => {
+    function openOrderForm(name, price) {
+        document.getElementById('orderProductName').value = name;
+        document.getElementById('orderProductPrice').value = price;
+        const quantityInput = document.getElementById('quantity');
+        const totalDisplay = document.getElementById('totalAmountDisplay');
+        function updateTotal() {
+            totalDisplay.textContent = price * quantityInput.value;
+        }
+        updateTotal();
+        quantityInput.addEventListener('input', updateTotal);
+        document.getElementById('orderFormModal').style.display = 'flex';
+    }
+
+    document.getElementById('orderDetailsForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const fullName = document.getElementById('fullName').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const address = document.getElementById('address').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const size = document.getElementById('size').value.trim();
+        const quantity = document.getElementById('quantity').value;
+        const productName = document.getElementById('orderProductName').value;
+        const productPrice = document.getElementById('orderProductPrice').value;
+        const paymentType = document.querySelector('input[name="paymentType"]:checked').value;
+        let paymentMethod = '';
+        let trxId = '';
+        let screenshot = '';
+
+        if (!fullName || !phone || !address || !quantity) {
+            alert('নাম, ফোন, ঠিকানা এবং পরিমাণ দিন!');
+            return;
+        }
+
+        if (paymentType === 'advance') {
+            paymentMethod = document.getElementById('paymentMethod').value;
+            trxId = document.getElementById('trxId').value.trim();
+            const screenshotFile = document.getElementById('paymentScreenshot').files[0];
+            screenshot = screenshotFile ? screenshotFile.name : 'নেই';
+
+            if (!paymentMethod || !trxId) {
+                alert('পেমেন্ট মেথড, TrxID দিন!');
+                return;
+            }
+        }
+
+        const order = {
+            id: Date.now(),
+            product: productName,
+            price: productPrice,
+            quantity: quantity,
+            customerName: fullName,
+            phone: phone,
+            address: address,
+            email: email || 'নেই',
+            size: size || 'N/A',
+            time: new Date().toLocaleString('bn-BD'),
+            status: 'pending',
+            paymentType: paymentType,
+            paymentMethod: paymentMethod,
+            trxId: trxId,
+            screenshot: screenshot
+        };
+
+        orders.push(order);
+        saveOrders();
+
+        const message = `নতুন অর্ডার!\nপ্রোডাক্ট: ${productName}\nদাম: ৳${productPrice}\nপরিমাণ: ${quantity}\nটোটাল: ৳${productPrice * quantity}\nপেমেন্ট: ${paymentType === 'cod' ? 'COD' : 'Advance (' + paymentMethod + ')\nTrxID: ' + trxId + '\nস্ক্রিনশট: ' + screenshot}\nনাম: ${fullName}\nফোন: ${phone}\nঠিকানা: ${address}\nজিমেইল: ${email}\nসাইজ: ${size}`;
+        const whatsappUrl = `https://wa.me/8801713574848?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+
+        alert('অর্ডার সফলভাবে পাঠানো হয়েছে!');
+        document.getElementById('orderFormModal').style.display = 'none';
+        e.target.reset();
+        document.getElementById('advancePaymentSection').style.display = 'none';
+
+        if (currentUserPhone) renderMyOrders();
+    });
+
+    document.querySelectorAll('input[name="paymentType"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.getElementById('advancePaymentSection').style.display = radio.value === 'advance' ? 'block' : 'none';
+        });
+    });
+
+    function renderMyOrders() {
+        const list = document.getElementById('myOrdersList');
+        list.innerHTML = '';
+        const userOrders = orders.filter(o => o.phone === currentUserPhone);
+        if (userOrders.length === 0) {
+            list.innerHTML = '<p>আপনার কোনো অর্ডার নেই।</p>';
+            return;
+        }
+        userOrders.forEach(o => {
+            const div = document.createElement('div');
+            div.className = 'order-item';
+            div.innerHTML = `
+                <h3>${o.product} × ${o.quantity}</h3>
+                <p>দাম: ৳${o.price * o.quantity}</p>
+                <p>সময়: ${o.time}</p>
+                <p>পেমেন্ট: ${o.paymentType === 'cod' ? 'COD' : 'Advance (' + o.paymentMethod + ')'}</p>
+                <p>TrxID: ${o.trxId || 'N/A'}</p>
+                <p>স্ক্রিনশট: ${o.screenshot || 'N/A'}</p>
+                <p>স্ট্যাটাস: <strong>${o.status}</strong></p>
+                <p>ঠিকানা: ${o.address}</p>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    document.getElementById('myOrdersBtn').onclick = () => {
+        const section = document.getElementById('myOrdersSection');
+        section.style.display = section.style.display === 'block' ? 'none' : 'block';
+        if (section.style.display === 'block') renderMyOrders();
+    };
+
+    if (currentUserPhone) {
+        document.getElementById('customerLoginBtn').textContent = 'হ্যালো! ' + currentUserPhone.slice(-6);
+        document.getElementById('myOrdersBtn').style.display = 'block';
+    }
+
+    document.getElementById('searchInput').addEventListener('input', e => {
         const term = e.target.value.toLowerCase().trim();
         const filtered = products.filter(p => p.name.toLowerCase().includes(term));
         renderProducts(filtered);
     });
 
+    document.querySelectorAll('.cat-item').forEach(item => {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+            const cat = item.dataset.category;
+            const filtered = cat === 'all' ? products : products.filter(p => p.category === cat);
+            renderProducts(filtered);
+        });
+    });
+
+    document.getElementById('customerLoginBtn').onclick = () => {
+        document.getElementById('customerModal').style.display = 'flex';
+    };
+
+    document.getElementById('sendOTPBtn').onclick = () => {
+        const phone = document.getElementById('phoneNumber').value.trim();
+        if (!phone.match(/^\+8801[3-9]\d{8}$/)) {
+            alert('সঠিক ফোন নম্বর দিন');
+            return;
+        }
+        alert(`ডেমো OTP পাঠানো হয়েছে → 123456`);
+        document.getElementById('phoneStep').style.display = 'none';
+        document.getElementById('otpStep').style.display = 'block';
+    };
+
+    document.getElementById('verifyOTPBtn').onclick = () => {
+        if (document.getElementById('otpCode').value === '123456') {
+            const phone = document.getElementById('phoneNumber').value;
+            alert('লগইন সফল!');
+            document.getElementById('customerLoginBtn').textContent = 'হ্যালো! ' + phone.slice(-6);
+            localStorage.setItem('customerPhone', phone);
+            document.getElementById('myOrdersBtn').style.display = 'block';
+            currentUserPhone = phone;
+            document.getElementById('customerModal').style.display = 'none';
+        } else {
+            alert('ভুল OTP');
+        }
+    };
+
+    document.getElementById('resendLink').onclick = () => alert('নতুন OTP পাঠানো হয়েছে');
+
+    // পেজ লোড হলে প্রোডাক্ট লোড
     loadProducts();
 </script>
+
 </body>
 </html>
