@@ -1,116 +1,104 @@
-<!-- customer.html -->
-<script>
-const API_URL='https://script.google.com/macros/s/AKfycbwK2QXSp1i-s8cD5hEVp_0ONKzCbSyZxr2NEzobJlHdzlmxDN97a32sh1ADJgyqa-kW/exec';
-let products=[],orders=JSON.parse(localStorage.getItem('orders'))||[];
-let currentUserPhone = localStorage.getItem('customerPhone')||null;
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>অ্যাপল সাইড - Customer</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+    --primary: #1e88e5;
+    --primary-dark: #1565c0;
+    --danger: #e53935;
+    --success: #43a047;
+    --warning: #fb8c00;
+    --light: #f8f9fa;
+    --dark: #212121;
+    --gray: #757575;
+}
+body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(to bottom, #f0f4f8, #d9e2ec); color: var(--dark); margin:0; padding:0; }
+header { background: var(--primary); color: white; padding: 15px 20px; position: sticky; top:0; z-index:1000; display:flex; justify-content:space-between; align-items:center; }
+header h1 { font-size:1.6rem; }
+.container { max-width: 1400px; margin: 0 auto; padding:20px; }
+.section { background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); margin:25px 0; padding:25px; }
+.product-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+.product-card { background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08); transition:0.2s; }
+.product-card:hover { transform:translateY(-5px); box-shadow:0 8px 20px rgba(0,0,0,0.12); }
+.product-img { width:100%; height:220px; object-fit:contain; padding:20px; background:#f9fcff; }
+.product-info { padding:15px; }
+.product-title { font-size:1.1rem; font-weight:600; margin-bottom:8px; }
+.product-price { color: var(--danger); font-size:1.2rem; font-weight:bold; }
+.actions { display:flex; gap:10px; margin-top:12px; }
+.btn-cart { background: var(--primary); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; width:100%; }
+.btn-cart:hover { background: var(--primary-dark); }
+.cart-counter { position:fixed; top:20px; right:20px; background: var(--danger); color:white; padding:10px 14px; border-radius:50%; font-weight:bold; z-index:1001; }
+</style>
+</head>
+<body>
 
-function saveOrders(){localStorage.setItem('orders',JSON.stringify(orders));}
+<header>
+    <h1>অ্যাপল সাইড - Customer</h1>
+    <div class="cart-counter" id="cartCounter">0</div>
+</header>
+
+<div class="container">
+    <div class="section">
+        <h2>সকল প্রোডাক্ট</h2>
+        <div class="product-grid" id="productList"></div>
+    </div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbwK2QXSp1i-s8cD5hEVp_0ONKzCbSyZxr2NEzobJlHdzlmxDN97a32sh1ADJgyqa-kW/exec';
+let products = [];
+let cart = [];
 
 async function loadProducts(){
     try{
-        const res=await fetch(API_URL+'?action=getProducts');
-        products=await res.json();
-        renderProducts(products);
-    }catch(err){ console.error(err); document.getElementById('productGrid').innerHTML='<p style="text-align:center;color:red;">প্রোডাক্ট লোড হয়নি।</p>'; }
+        const res = await fetch(API_URL + '?action=getProducts');
+        products = await res.json();
+        renderProducts();
+    } catch(err){ console.error(err); }
 }
 
-function renderProducts(filtered=products){
-    const grid=document.getElementById('productGrid');
+function renderProducts(){
+    const grid = document.getElementById('productList');
     grid.innerHTML='';
-    if(filtered.length===0){grid.innerHTML='<p style="text-align:center;">কোনো প্রোডাক্ট নেই</p>'; return;}
-    filtered.forEach(p=>{
-        const card=document.createElement('div');
+    if(products.length===0){
+        grid.innerHTML='<p style="text-align:center; color:#777;">কোনো প্রোডাক্ট নেই</p>';
+        return;
+    }
+    products.forEach(p=>{
+        const card = document.createElement('div');
         card.className='product-card';
         card.innerHTML=`
-        <img src="${p.img}" class="product-img">
-        <div class="product-info">
-            <div class="product-title">${p.name}</div>
-            <div class="price">৳${p.price} ${p.old?`<span class="old-price">৳${p.old}</span>`:''}</div>
-            <button class="buy-btn" onclick="openOrderForm('${p.name.replace(/'/g,"\\'")}',${p.price})"><i class="fab fa-whatsapp"></i> কিনুন</button>
-        </div>`;
+            <img src="${p.img}" class="product-img" alt="${p.name}">
+            <div class="product-info">
+                <div class="product-title">${p.name}</div>
+                <div class="product-price">৳${p.price} ${p.oldPrice?`<small>(আগের ৳${p.oldPrice})</small>`:''}</div>
+                <div>ক্যাটাগরি: ${p.category}</div>
+                <button onclick="addToCart('${p.id}')" class="btn-cart"><i class="fas fa-cart-plus"></i> কার্টে যোগ করুন</button>
+            </div>
+        `;
         grid.appendChild(card);
     });
 }
 
-function openOrderForm(name,price){
-    document.getElementById('orderProductName').value=name;
-    document.getElementById('orderProductPrice').value=price;
-    const qty=document.getElementById('quantity');
-    const total=document.getElementById('totalAmountDisplay');
-    function updateTotal(){ total.textContent=price*qty.value; }
-    updateTotal();
-    qty.addEventListener('input',updateTotal);
-    document.getElementById('orderFormModal').style.display='flex';
+function addToCart(id){
+    const product = products.find(p=>p.id===id);
+    if(product){
+        cart.push(product);
+        updateCartCounter();
+        alert(`${product.name} কার্টে যোগ করা হয়েছে`);
+    }
 }
 
-// অর্ডার সাবমিট
-document.getElementById('orderDetailsForm').addEventListener('submit',async e=>{
-    e.preventDefault();
-    const name=document.getElementById('fullName').value.trim();
-    const phone=document.getElementById('phone').value.trim();
-    const address=document.getElementById('address').value.trim();
-    const email=document.getElementById('email').value.trim();
-    const size=document.getElementById('size').value.trim();
-    const qty=document.getElementById('quantity').value;
-    const productName=document.getElementById('orderProductName').value;
-    const productPrice=document.getElementById('orderProductPrice').value;
-    const paymentType=document.querySelector('input[name="paymentType"]:checked').value;
-    let paymentMethod='',trxId='',screenshot='';
-
-    if(!name||!phone||!address||!qty){ alert('সকল প্রয়োজনীয় তথ্য দিন'); return;}
-
-    if(paymentType==='advance'){
-        paymentMethod=document.getElementById('paymentMethod').value;
-        trxId=document.getElementById('trxId').value.trim();
-        const file=document.getElementById('paymentScreenshot').files[0];
-        screenshot=file?file.name:'নেই';
-        if(!paymentMethod||!trxId){ alert('Payment Method ও TrxID দিন!'); return;}
-    }
-
-    const order={
-        action:'addOrder',
-        id:Date.now().toString(),
-        customerName:name,phone,address,email:email||'নেই',size:size||'N/A',
-        product:productName,quantity:qty,price:productPrice,total:productPrice*qty,
-        time:new Date().toLocaleString('bn-BD'),paymentType,paymentMethod,trxId,screenshot,status:'Pending'
-    };
-
-    try{
-        const res=await fetch(API_URL,{method:'POST',body:JSON.stringify(order)});
-        const result=await res.json();
-        if(result.status==='success'){
-            orders.push(order);
-            saveOrders();
-            const msg=`নতুন অর্ডার!\nপ্রোডাক্ট: ${productName}\nটোটাল: ৳${productPrice*qty}\nপেমেন্ট: ${paymentType==='cod'?'COD':'Advance ('+paymentMethod+')\nTrxID:'+trxId+'\nScreenshot:'+screenshot}\nনাম: ${name}\nফোন: ${phone}\nঠিকানা: ${address}`;
-            window.open(`https://wa.me/8801713574848?text=${encodeURIComponent(msg)}`,'_blank');
-            alert('অর্ডার সফলভাবে পাঠানো হয়েছে!');
-            document.getElementById('orderFormModal').style.display='none';
-            e.target.reset();
-            document.getElementById('advancePaymentSection').style.display='none';
-        }else alert(result.message||'সমস্যা হয়েছে');
-    }catch(err){ alert('ইন্টারনেট চেক করুন: '+err.message); }
-});
-
-// পেমেন্ট টাইপ অনুযায়ী শো/হাইড
-document.querySelectorAll('input[name="paymentType"]').forEach(r=>{
-    r.addEventListener('change',()=>{ document.getElementById('advancePaymentSection').style.display=r.value==='advance'?'block':'none'; });
-});
-
-// সার্চ
-document.getElementById('searchInput').addEventListener('input',e=>{
-    const term=e.target.value.toLowerCase();
-    renderProducts(products.filter(p=>p.name.toLowerCase().includes(term)));
-});
-
-// ক্যাটাগরি ফিল্টার
-document.querySelectorAll('.cat-item').forEach(item=>{
-    item.addEventListener('click',()=>{
-        document.querySelectorAll('.cat-item').forEach(i=>i.classList.remove('active'));
-        item.classList.add('active');
-        const cat=item.dataset.category;
-        renderProducts(cat==='all'?products:products.filter(p=>p.category===cat));
-    });
-});
+function updateCartCounter(){
+    document.getElementById('cartCounter').innerText = cart.length;
+}
 
 loadProducts();
 </script>
+
+</body>
+</html>
