@@ -82,20 +82,18 @@
         <div class="cat-item" data-category="airpods">AirPods</div>
         <div class="cat-item" data-category="powerbank">পাওয়ার ব্যাংক</div>
         <div class="cat-item" data-category="selfie">সেলফি স্টিক</div>
-        <div class="cat-item" data-category="selfie">হিমডি ফায়ার</div>
+        <div class="cat-item" data-category="fire">হিমডি ফায়ার</div>
     </div>
 
     <h2 class="section-title">হট ডিলস ও বেস্ট সেলার</h2>
     <div class="product-grid" id="productGrid"></div>
 
-    <!-- আমার অর্ডার সেকশন -->
     <div id="myOrdersSection" class="my-orders" style="display:none;">
         <h2>আমার অর্ডার</h2>
         <div id="myOrdersList"></div>
     </div>
 </div>
 
-<!-- লগইন মোডাল -->
 <div class="modal" id="customerModal">
     <div class="modal-content">
         <span class="close-btn" onclick="document.getElementById('customerModal').style.display='none'">×</span>
@@ -112,7 +110,6 @@
     </div>
 </div>
 
-<!-- অর্ডার ফর্ম মোডাল -->
 <div class="modal" id="orderFormModal">
     <div class="modal-content">
         <span class="close-btn" onclick="document.getElementById('orderFormModal').style.display='none'">×</span>
@@ -120,28 +117,21 @@
         <form id="orderDetailsForm" class="order-form">
             <label>পুরো নাম *</label>
             <input type="text" id="fullName" required>
-
             <label>ফোন নম্বর *</label>
             <input type="tel" id="phone" required>
-
             <label>ডেলিভারি ঠিকানা *</label>
             <input type="text" id="address" required>
-
             <label>জিমেইল (ঐচ্ছিক)</label>
             <input type="email" id="email">
-
             <label>সাইজ (যদি থাকে)</label>
             <input type="text" id="size">
-
             <label>কতটি নিবেন *</label>
             <input type="number" id="quantity" min="1" value="1" required>
-
             <div class="payment-options">
                 <label>পেমেন্টের ধরন *</label>
                 <label><input type="radio" name="paymentType" value="cod" checked> ক্যাশ অন ডেলিভারি (COD)</label>
                 <label><input type="radio" name="paymentType" value="advance"> অ্যাডভান্স পেমেন্ট</label>
             </div>
-
             <div id="advancePaymentSection" class="payment-method" style="display:none;">
                 <label>পেমেন্ট মেথড *</label>
                 <select id="paymentMethod" required>
@@ -149,24 +139,19 @@
                     <option value="bkash">bKash</option>
                     <option value="nagad">Nagad</option>
                 </select>
-
                 <div class="payment-instructions">
                     <p>Send Money করুন নম্বরে: <strong>01713574848</strong></p>
                     <p>পরিমাণ: অর্ডারের টোটাল টাকা (যেমন: ৳<span id="totalAmountDisplay"></span>)</p>
                     <p>রেফারেন্সে অর্ডার নম্বর লিখুন</p>
                     <p>পেমেন্ট করার পর TrxID এবং স্ক্রিনশট দিন।</p>
                 </div>
-
                 <label>Transaction ID (TrxID) *</label>
                 <input type="text" id="trxId" placeholder="যেমন: ABCD123456">
-
                 <label>পেমেন্ট স্ক্রিনশট আপলোড করুন (ঐচ্ছিক)</label>
                 <input type="file" id="paymentScreenshot" accept="image/*">
             </div>
-
             <input type="hidden" id="orderProductName">
             <input type="hidden" id="orderProductPrice">
-
             <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px;">অর্ডার পাঠান</button>
         </form>
     </div>
@@ -188,11 +173,12 @@
     async function loadProducts() {
         try {
             const response = await fetch(API_URL);
+            if (!response.ok) throw new Error('HTTP error! status: ' + response.status);
             products = await response.json();
             renderProducts(products);
         } catch (err) {
             console.error('প্রোডাক্ট লোড হয়নি:', err);
-            document.getElementById('productGrid').innerHTML = '<p style="text-align:center; color:red; padding:40px;">প্রোডাক্ট লোড করতে সমস্যা হয়েছে।</p>';
+            document.getElementById('productGrid').innerHTML = '<p style="color:red; text-align:center; padding:40px;">প্রোডাক্ট লোড করতে সমস্যা হয়েছে।</p>';
         }
     }
 
@@ -225,9 +211,7 @@
         document.getElementById('orderProductPrice').value = price;
         const quantityInput = document.getElementById('quantity');
         const totalDisplay = document.getElementById('totalAmountDisplay');
-        function updateTotal() {
-            totalDisplay.textContent = price * quantityInput.value;
-        }
+        function updateTotal() { totalDisplay.textContent = price * quantityInput.value; }
         updateTotal();
         quantityInput.addEventListener('input', updateTotal);
         document.getElementById('orderFormModal').style.display = 'flex';
@@ -238,18 +222,17 @@
         const fullName = document.getElementById('fullName').value.trim();
         const phone = document.getElementById('phone').value.trim();
         const address = document.getElementById('address').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const size = document.getElementById('size').value.trim();
-        const quantity = document.getElementById('quantity').value;
+        const quantity = parseInt(document.getElementById('quantity').value);
         const productName = document.getElementById('orderProductName').value;
-        const productPrice = document.getElementById('orderProductPrice').value;
+        const productPrice = parseFloat(document.getElementById('orderProductPrice').value);
         const paymentType = document.querySelector('input[name="paymentType"]:checked').value;
+
         let paymentMethod = '';
         let trxId = '';
         let screenshot = '';
 
-        if (!fullName || !phone || !address || !quantity) {
-            alert('নাম, ফোন, ঠিকানা এবং পরিমাণ দিন!');
+        if (!fullName || !phone || !address || !quantity || quantity < 1) {
+            alert('সব তথ্য ঠিকমতো দিন!');
             return;
         }
 
@@ -260,12 +243,12 @@
             screenshot = screenshotFile ? screenshotFile.name : 'নেই';
 
             if (!paymentMethod || !trxId) {
-                alert('পেমেন্ট মেথড, TrxID দিন!');
+                alert('অ্যাডভান্স পেমেন্টের জন্য মেথড ও TrxID দিন!');
                 return;
             }
         }
 
-        const order = {
+        const orderData = {
             action: "addOrder",
             id: Date.now().toString(),
             product: productName,
@@ -285,120 +268,4 @@
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
-                body: JSON.stringify(order)
-            });
-            const result = await response.json();
-            if (result.status === 'success') {
-                orders.push(order);
-                saveOrders();
-                const message = `নতুন অর্ডার!\nপ্রোডাক্ট: ${productName}\nদাম: ৳${productPrice}\nপরিমাণ: ${quantity}\nটোটাল: ৳${productPrice * quantity}\nপেমেন্ট: ${paymentType === 'cod' ? 'COD' : 'Advance (' + paymentMethod + ')\nTrxID: ' + trxId + '\nস্ক্রিনশট: ' + screenshot}\nনাম: ${fullName}\nফোন: ${phone}\nঠিকানা: ${address}`;
-                const whatsappUrl = `https://wa.me/8801713574848?text=${encodeURIComponent(message)}`;
-                window.open(whatsappUrl, '_blank');
-                alert('অর্ডার সফলভাবে পাঠানো হয়েছে!');
-                document.getElementById('orderFormModal').style.display = 'none';
-                e.target.reset();
-                document.getElementById('advancePaymentSection').style.display = 'none';
-
-                if (currentUserPhone) renderMyOrders();
-            } else {
-                alert('সমস্যা হয়েছে: ' + result.message);
-            }
-        } catch (err) {
-            alert('ইন্টারনেট চেক করো: ' + err.message);
-        }
-    });
-
-    document.querySelectorAll('input[name="paymentType"]').forEach(radio => {
-        radio.addEventListener('change', () => {
-            document.getElementById('advancePaymentSection').style.display = radio.value === 'advance' ? 'block' : 'none';
-        });
-    });
-
-    function renderMyOrders() {
-        const list = document.getElementById('myOrdersList');
-        list.innerHTML = '';
-        const userOrders = orders.filter(o => o.phone === currentUserPhone);
-        if (userOrders.length === 0) {
-            list.innerHTML = '<p>আপনার কোনো অর্ডার নেই।</p>';
-            return;
-        }
-        userOrders.forEach(o => {
-            const div = document.createElement('div');
-            div.className = 'order-item';
-            div.innerHTML = `
-                <h3>${o.product} × ${o.quantity}</h3>
-                <p>দাম: ৳${o.total}</p>
-                <p>সময়: ${o.time}</p>
-                <p>পেমেন্ট: ${o.paymentType === 'cod' ? 'COD' : 'Advance (' + o.paymentMethod + ')'}</p>
-                <p>TrxID: ${o.trxId || 'N/A'}</p>
-                <p>স্ক্রিনশট: ${o.screenshot || 'N/A'}</p>
-                <p>স্ট্যাটাস: <strong>${o.status}</strong></p>
-                <p>ঠিকানা: ${o.address}</p>
-            `;
-            list.appendChild(div);
-        });
-    }
-
-    document.getElementById('myOrdersBtn').onclick = () => {
-        const section = document.getElementById('myOrdersSection');
-        section.style.display = section.style.display === 'block' ? 'none' : 'block';
-        if (section.style.display === 'block') renderMyOrders();
-    };
-
-    if (currentUserPhone) {
-        document.getElementById('customerLoginBtn').textContent = 'হ্যালো! ' + currentUserPhone.slice(-6);
-        document.getElementById('myOrdersBtn').style.display = 'block';
-    }
-
-    document.getElementById('searchInput').addEventListener('input', e => {
-        const term = e.target.value.toLowerCase().trim();
-        const filtered = products.filter(p => p.name.toLowerCase().includes(term));
-        renderProducts(filtered);
-    });
-
-    document.querySelectorAll('.cat-item').forEach(item => {
-        item.addEventListener('click', () => {
-            document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-            const cat = item.dataset.category;
-            const filtered = cat === 'all' ? products : products.filter(p => p.category === cat);
-            renderProducts(filtered);
-        });
-    });
-
-    document.getElementById('customerLoginBtn').onclick = () => {
-        document.getElementById('customerModal').style.display = 'flex';
-    };
-
-    document.getElementById('sendOTPBtn').onclick = () => {
-        const phone = document.getElementById('phoneNumber').value.trim();
-        if (!phone.match(/^\+8801[3-9]\d{8}$/)) {
-            alert('সঠিক ফোন নম্বর দিন');
-            return;
-        }
-        alert(`ডেমো OTP পাঠানো হয়েছে → 123456`);
-        document.getElementById('phoneStep').style.display = 'none';
-        document.getElementById('otpStep').style.display = 'block';
-    };
-
-    document.getElementById('verifyOTPBtn').onclick = () => {
-        if (document.getElementById('otpCode').value === '123456') {
-            const phone = document.getElementById('phoneNumber').value;
-            alert('লগইন সফল!');
-            document.getElementById('customerLoginBtn').textContent = 'হ্যালো! ' + phone.slice(-6);
-            localStorage.setItem('customerPhone', phone);
-            document.getElementById('myOrdersBtn').style.display = 'block';
-            currentUserPhone = phone;
-            document.getElementById('customerModal').style.display = 'none';
-        } else {
-            alert('ভুল OTP');
-        }
-    };
-
-    document.getElementById('resendLink').onclick = () => alert('নতুন OTP পাঠানো হয়েছে');
-
-    loadProducts();
-</script>
-
-</body>
-</html>
+                body
